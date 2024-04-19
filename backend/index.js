@@ -41,6 +41,16 @@ app.get('/api/logger', (req, res) => {
     });
 });
 
+app.get('/api/timelogger', (req, res) => {
+    const query2 = 'SELECT LogTime, AverageVoltage FROM flow_logger ORDER BY LogTime ASC';
+    pool.query(query2, (error, results) => {
+        if(error) {
+            return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
+        }
+        res.json(results)
+    });
+});
+
 // Start the server on port 3001
 const PORT = 3001;
 app.listen(PORT, () => {
