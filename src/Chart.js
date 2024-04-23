@@ -4,6 +4,7 @@ import { Line, Scatter } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
 
 
+
 function Chart({ id }) {
     const [datac, setCData] = useState(null);
     const [scatterData, setScatterData] = useState([]);
@@ -73,8 +74,30 @@ function Chart({ id }) {
         //     }
         // };
     }, [id]);
-    
+    function getUnitofMeasurement(label) {
+        switch (label) {
+            case 'Average Voltage':
+                return ' V';
+            case 'Current Flow':
+                return ' psi';
+            case 'Flow Positive':
+            case 'Flow Negative':
+                return ' Liters';
+            default: 
+                return '';
+        }
+    }
+    const footer = (tooltipItems) => {
+        let sum = 0;
+      
+        tooltipItems.forEach(function(tooltipItem) {
+          sum += tooltipItem.parsed.y;
+        });
+        return 'Sum: ' + sum;
+      };
+
     const options = {
+        
         responsive: true,
         maintainAspectRatio: true, // This allows setting explicit height and width
         // Set the desired height and width here
@@ -87,6 +110,12 @@ function Chart({ id }) {
                 display: true,
                 text: 'Voltage and Current Flow Over Time'
             },
+            tooltip: {
+                callbacks: {
+                    footer: footer,
+                    label: (item) => `${item.dataset.label}: ${item.formattedValue} ${getUnitofMeasurement(item.dataset.label)}`
+                }
+            },
         },
         // Example dynamic values based on parent container size:
         // layout: {
@@ -98,6 +127,8 @@ function Chart({ id }) {
         //   }
         // }
       };
+    
+    
 
       const scatterOptions = {
         responsive: true,
