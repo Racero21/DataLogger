@@ -22,7 +22,8 @@ const pool = mysql.createPool({
 
 // Define an API endpoint to retrieve data from the database
 app.get('/api/flow_logger', (req, res) => {
-    const query = 'SELECT * FROM flow_logger';
+    // const query = 'SELECT * FROM flow_logger';
+    const query = 'SELECT * FROM flow_logger ORDER BY LoggerId, LogTime ASC';
     pool.query(query, (error, results) => {
         if (error) {
             return res.status(500).json({ error: 'Failed to fetch data' });
@@ -44,6 +45,23 @@ app.get('/api/logger', (req, res) => {
 app.get('/api/timelogger', (req, res) => {
     const query2 = 'SELECT LogTime, AverageVoltage FROM flow_logger ORDER BY LogTime ASC';
     pool.query(query2, (error, results) => {
+        if(error) {
+            return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
+        }
+        res.json(results)
+    });
+});
+
+app.get('/api/flowmeter_log/:id?', (req, res) => {
+    const LoggerId = req.params.id;
+    let query = 'SELECT * FROM flow_logger ORDER BY LoggerId, LogTime ASC';
+
+    if (LoggerId) {
+        query = 'SELECT * FROM flow_logger WHERE LoggerId = ? ORDER BY LogTime ASC'
+    }
+    console.log(query)
+    // const query2 = 'SELECT LogTime, AverageVoltage FROM flow_logger ORDER BY LogTime ASC';
+    pool.query(query, LoggerId ? [LoggerId] : [], (error, results) => {
         if(error) {
             return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
         }
