@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Line } from 'react-chartjs-2';
+import { Line, Scatter } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
 
 
-function Chart() {
-    const [chartData, setChartData] = useState([]);
+function Chart({ id }) {
     const [datac, setCData] = useState(null);
+    const [scatterData, setScatterData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    
     useEffect(() => {
+        
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://192.168.3.179:3001/api/timelogger');
+                const response = await axios.get('http://192.168.3.189:3001/api/flowmeter_log/'+id);
                 const data = response.data;
-
+                
                 // Process the data from the response and create the data object for the chart
                 const transformedData = {
                     labels: data.map(item => item.LogTime),
@@ -26,13 +27,37 @@ function Chart() {
                             borderColor: 'rgba(75,192,192,1)',
                             fill: false,
                         },
+                        {
+                            label: 'Current Flow',
+                            data: data.map(item => item.CurrentFlow),
+                            borderColor: 'rgba(255,192,255,1)',
+                            fill: false,
+                        },
+                        {
+                            label: 'Flow Positive',
+                            data: data.map(item => item.TotalFlowPositive),
+                            borderColor: 'rgba(255,0,255,255)',
+                            fill: false,
+                        },
+                        {
+                            label: 'Flow Negative',
+                            data: data.map(item => item.TotalFlowNegative),
+                            borderColor: 'rgba(255,192,0,60)',
+                            fill: false,
+                        },
                         // Add more datasets if needed
                     ]
                 };
+
+                const scatterPlotData = data.map(item => ({
+                    x: item.AverageVoltage,
+                    y: item.CurrentFlow
+                }));
+                 
                 
-                setChartData(data);
                 setCData(transformedData);
                 setLoading(false);
+                setScatterData(scatterPlotData)
             } catch (error) {
                 setError('Error fetching data: ' + error.message);
             }
@@ -47,55 +72,59 @@ function Chart() {
         //         chartInstance.destroy();
         //     }
         // };
-    }, []);
+    }, [id]);
+    
+    const options = {
+        responsive: true,
+        maintainAspectRatio: true, // This allows setting explicit height and width
+        // Set the desired height and width here
+        // You can use static values or calculate them dynamically
+        // Example static values:
+        height: 50,
+        width: 50,
+        plugins: {      
+            title: {
+                display: true,
+                text: 'Voltage and Current Flow Over Time'
+            },
+        },
+        // Example dynamic values based on parent container size:
+        // layout: {
+        //   padding: {
+        //     top: 50,
+        //     left: 50,
+        //     right: 50,
+        //     bottom: 50
+        //   }
+        // }
+      };
 
-    // const [chartData, setChartData] = useState({});
-    // const [datac, setCData] = useState({});
-    // const [loading, setLoading] = useState(true);
-
-    // useEffect(async () => {
-    //     await axios.get('http://192.168.3.179:3001/api/timelogger')
-    //         .then(response => {
-    //             // Process the data from the response and create the data object for the chart
-    //             setChartData(response.data);
-    //             console.log("MAY NAKUHA");
-    //             console.log(chartData)
-    //             console.log('Type of chartData:', typeof chartData);
-    //             console.log('Is chartData an array?', Array.isArray(chartData));
-
-    //             const data = {
-    //                 labels: chartData.map(item => item.LogTime), // Assuming LogTime is the x-axis data
-    //                 datasets: [
-    //                     {
-    //                         label: 'Average Voltage',
-    //                         data: chartData.map(item => item.AverageVoltage),
-    //                         borderColor: 'rgba(75,192,192,1)',
-    //                         fill: false,
-    //                     },
-    //                     // Add more datasets if needed
-    //                 ]
-    //             };
-    //             setCData(data);
-    //             setLoading(false);
-    //         })
-    //         .catch(error => {
-    //             console.error('Error fetching data:', error);
-    //         });
-    // }, []);
-    console.log(chartData)
-    // const data = {
-    //     labels: chartData.map(item => item.LogTime), // Assuming LogTime is the x-axis data
-    //     datasets: [
-    //         {
-    //             label: 'Average Voltage',
-    //             data: chartData.map(item => item.AverageVoltage),
-    //             borderColor: 'rgba(75,192,192,1)',
-    //             fill: false,
-    //         },
-    //         // Add more datasets if needed
-    //     ],
-    // };
-    // setCData(data);
+      const scatterOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {      
+            title: {
+                display: true,
+                text: 'Current Flow to Voltage'
+            },
+        },
+        scales: {
+            x: {
+                type: 'linear',
+                position: 'bottom',
+                title: {
+                    display: true,
+                    text: 'Voltage'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'Flow'
+                }
+            }
+        }
+    };
 
     if(loading) {
         return (
@@ -105,8 +134,14 @@ function Chart() {
 
     return (
         <div>
-            <h2>Average Voltage over Time</h2>
-            <Line data={datac}/> 
+            <h1>LoggerId: {id}</h1>
+            <div style={{height:400, 
+                    width:600}}>
+                <Line data={datac} options={options}/>
+            </div>
+            <div style={{ height: 400, width: 600 }}>
+                <Scatter data={{ datasets: [{ data: scatterData, label: 'Current Flow to Voltage'}] }} options={scatterOptions} />
+            </div>
         </div>
     );
 }
