@@ -14,7 +14,7 @@ import { AppBar } from '@mui/material';
 export default function ToggleButtonsMultiple({ onChange }) {
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar position="static" style={{ zIndex: 1000 }}>
         <Toolbar>
           <IconButton
             size="large"

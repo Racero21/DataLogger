@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Line, Scatter } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
 
 
 
 function Chart({ id }) {
     const [datac, setCData] = useState(null);
-    const [scatterData, setScatterData] = useState([]);
+    // const [scatterData, setScatterData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
@@ -50,15 +50,15 @@ function Chart({ id }) {
                     ]
                 };
 
-                const scatterPlotData = data.map(item => ({
-                    x: item.AverageVoltage,
-                    y: item.CurrentFlow
-                }));
+                // const scatterPlotData = data.map(item => ({
+                //     x: item.AverageVoltage,
+                //     y: item.CurrentFlow
+                // }));
                  
                 
                 setCData(transformedData);
                 setLoading(false);
-                setScatterData(scatterPlotData)
+                // setScatterData(scatterPlotData)
             } catch (error) {
                 setError('Error fetching data: ' + error.message);
             }
@@ -130,32 +130,32 @@ function Chart({ id }) {
     
     
 
-      const scatterOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {      
-            title: {
-                display: true,
-                text: 'Current Flow to Voltage'
-            },
-        },
-        scales: {
-            x: {
-                type: 'linear',
-                position: 'bottom',
-                title: {
-                    display: true,
-                    text: 'Voltage'
-                }
-            },
-            y: {
-                title: {
-                    display: true,
-                    text: 'Flow'
-                }
-            }
-        }
-    };
+    //   const scatterOptions = {
+    //     responsive: true,
+    //     maintainAspectRatio: false,
+    //     plugins: {      
+    //         title: {
+    //             display: true,
+    //             text: 'Current Flow to Voltage'
+    //         },
+    //     },
+    //     scales: {
+    //         x: {
+    //             type: 'linear',
+    //             position: 'bottom',
+    //             title: {
+    //                 display: true,
+    //                 text: 'Voltage'
+    //             }
+    //         },
+    //         y: {
+    //             title: {
+    //                 display: true,
+    //                 text: 'Flow'
+    //             }
+    //         }
+    //     }
+    // };
 
     if(loading) {
         return (
@@ -165,14 +165,14 @@ function Chart({ id }) {
 
     return (
         <div>
-            <h1>LoggerId: {id}</h1>
+            {/* <h1>LoggerId: {id}</h1> */}
             <div style={{height:400, 
                     width:600}}>
                 <Line data={datac} options={options}/>
             </div>
-            <div style={{ height: 400, width: 600 }}>
+            {/* <div style={{ height: 400, width: 600 }}>
                 <Scatter data={{ datasets: [{ data: scatterData, label: 'Current Flow to Voltage'}] }} options={scatterOptions} />
-            </div>
+            </div> */}
         </div>
     );
 }
