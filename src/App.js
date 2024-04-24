@@ -28,10 +28,10 @@ function App() {
                 // width={200}
                 // my={4}
                 display="flex"
-                // alignItems="center"
+                alignContent="center"
                 // gap={4}
-                // p={2}
-                sx={{ border: '2px solid grey', height: '33vh', width: '32%'}}
+                p={2}
+                sx={{ border: '2px solid grey', height: '50vh', width: '47.5%'}}
                 >
                   <Chart id={item.LoggerId} />
                 </Box>
@@ -81,13 +81,14 @@ function App() {
             <ToggleButtonsMultiple onChange={handleToggleChange}/>
             <Box
                 // my={4}
-                display="flex"
-                alignItems="stretch"
+                display="inline-flex"
+                alignItems="flex-start"
+                // alignContent={'space-evenly'}
                 flexWrap={'wrap'}
-                gap={1}
+                gap={1.5}
                 flexDirection={'row'}
                 p={1}
-                sx={{ border: '2px solid grey', height: '100vh', width: '100vw', maxWidth:'100%'}}
+                sx={{ border: '2px solid grey', height: '100%', width: '100vw', maxWidth:'100%'}}
               >
             {renderComponent()}
             </Box>

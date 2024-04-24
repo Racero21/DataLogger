@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
+import { Grid, Card, CardContent, Typography } from '@mui/material';
 
 
 
@@ -166,9 +167,59 @@ function Chart({ id }) {
     }
 
     return (
-        <div id="chart" style={{height:'33vh', width: '30vw'}}>
-            <Line data={datac} options={options}/>
-        </div>
+        <div>
+      <Grid container spacing={2}>
+        {/* First Card */}
+        <Grid item xs={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" component="h2">
+                Card 1
+              </Typography>
+              <Typography color="textSecondary">
+                This is the content of card 1.
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Second Card */}
+        <Grid item xs={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" component="h2">
+                Card 2
+              </Typography>
+              <Typography color="textSecondary">
+                This is the content of card 2.
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Third Card */}
+        <Grid item xs={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" component="h2">
+                Card 3
+              </Typography>
+              <Typography color="textSecondary">
+                This is the content of card 3.
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Chart Component */}
+      <div style={{ marginTop: 20, height: 400 }}>
+      <Line data={datac} options={options}/>
+      </div>
+    </div>
+        // <div id="chart" style={{height:'33vh', width: '30vw'}}>
+        //     <Line data={datac} options={options}/>
+        // </div>
     );
 }
 
