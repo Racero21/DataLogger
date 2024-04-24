@@ -38,7 +38,7 @@ function App() {
               // </Box>
             ))
           case 'map':
-            return <div>
+            return <div style={{border:'2px solid #00b3ff', flex:'1',}}>
               {/* <h1> MAP HERE </h1> */}
                 <div id="map">
                   <MyMap />
@@ -88,7 +88,7 @@ function App() {
                 gap={1.5}
                 flexDirection={'row'}
                 p={1}
-                sx={{ border: '2px solid grey', height: '100%', width: '100vw', maxWidth:'100%'}}
+                sx={{ boxSizing:'border-box', border:'2px solid grey', height: '100%', width: '100vw', maxWidth:'100%'}}
               >
             {renderComponent()}
             </Box>
