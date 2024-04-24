@@ -6,7 +6,7 @@ function Logger() {
 
     useEffect(() => {
       // Make an API call to your Node.js backend using axios
-      axios.get('http://192.168.3.189:3001/api/logger')
+      axios.get('http://52.77.11.180:3001/api/logger')
           .then(response => {
               // Set the data in state
               setLoggers(response.data);

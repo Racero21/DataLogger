@@ -15,7 +15,9 @@ function Chart({ id }) {
         
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://192.168.3.189:3001/api/flowmeter_log/'+id);
+                // const response = await axios.get('http://192.168.3.189:3001/api/flowmeter_log/'+id);
+                const response = await axios.get('http://52.77.11.180:3001/api/flowmeter_log/'+id);
+                
                 const data = response.data;
                 
                 // Process the data from the response and create the data object for the chart
@@ -99,12 +101,12 @@ function Chart({ id }) {
     const options = {
         
         responsive: true,
-        maintainAspectRatio: true, // This allows setting explicit height and width
-        // Set the desired height and width here
-        // You can use static values or calculate them dynamically
-        // Example static values:
-        height: 50,
-        width: 50,
+        // maintainAspectRatio: true, // This allows setting explicit height and width
+        // // Set the desired height and width here
+        // // You can use static values or calculate them dynamically
+        // // Example static values:
+        // height: 50,
+        // width: 50,
         plugins: {      
             title: {
                 display: true,
@@ -164,17 +166,19 @@ function Chart({ id }) {
     }
 
     return (
-        <div>
-            {/* <h1>LoggerId: {id}</h1> */}
-            <div style={{height:400, 
-                    width:600}}>
-                <Line data={datac} options={options}/>
-            </div>
-            {/* <div style={{ height: 400, width: 600 }}>
-                <Scatter data={{ datasets: [{ data: scatterData, label: 'Current Flow to Voltage'}] }} options={scatterOptions} />
-            </div> */}
+        <div id="chart" style={{height:'33vh', width: '30vw'}}>
+            <Line data={datac} options={options}/>
         </div>
     );
 }
 
 export default Chart;
+
+ {/* </div> */}
+            {/* <div style={{ height: 400, width: 600 }}>
+                <Scatter data={{ datasets: [{ data: scatterData, label: 'Current Flow to Voltage'}] }} options={scatterOptions} />
+            </div> */}
+
+
+            {/* <h1>LoggerId: {id}</h1> */}
+            {/* <div style={{height:400, width:600}}> */}

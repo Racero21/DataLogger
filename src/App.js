@@ -23,19 +23,19 @@ function App() {
           case 'statistics':
             console.log(data)
             return data.map(item => (
-                // <div key={item.LoggerId}> <Chart id={item.LoggerId}/></div>
-              <Box
+                <Box
                 // height={30%}
                 // width={200}
-                my={4}
+                // my={4}
                 display="flex"
-                alignItems="center"
-                gap={4}
-                p={2}
-                sx={{ border: '2px solid grey', height: '1%', width: '35%'}}
-              >
-                <Chart id={item.LoggerId} />
-              </Box>  
+                // alignItems="center"
+                // gap={4}
+                // p={2}
+                sx={{ border: '2px solid grey', height: '33vh', width: '32%'}}
+                >
+                  <Chart id={item.LoggerId} />
+                </Box>
+              // </Box>
             ))
           case 'map':
             return <div>
@@ -57,7 +57,7 @@ function App() {
       // Make an API call to your Node.js backend using axios
       const fetchUniqueLoggers = async () => {
             try {
-                const response = await axios.get('http://192.168.3.189:3001/api/logger/');
+                const response = await axios.get('http://52.77.11.180:3001/api/logger/');
                 const data = response.data;
                 
                 setData(data)
@@ -78,11 +78,19 @@ function App() {
     //   </Switch>
     // </Router>
         <div>
-            {/* <AppBar /> */}
             <ToggleButtonsMultiple onChange={handleToggleChange}/>
-            <div>
+            <Box
+                // my={4}
+                display="flex"
+                alignItems="stretch"
+                flexWrap={'wrap'}
+                gap={1}
+                flexDirection={'row'}
+                p={1}
+                sx={{ border: '2px solid grey', height: '100vh', width: '100vw', maxWidth:'100%'}}
+              >
             {renderComponent()}
-            </div>
+            </Box>
             
         </div>
     );
