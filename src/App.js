@@ -57,7 +57,7 @@ function App() {
       // Make an API call to your Node.js backend using axios
       const fetchUniqueLoggers = async () => {
             try {
-                const response = await axios.get('http://52.77.11.180:3001/api/logger/');
+                const response = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger/`);
                 const data = response.data;
                 
                 setData(data)

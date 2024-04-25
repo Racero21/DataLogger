@@ -4,8 +4,6 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
 import { Grid, Card, CardContent, Typography } from '@mui/material';
 
-
-
 function Chart({ id }) {
     const [datac, setCData] = useState(null);
     // const [scatterData, setScatterData] = useState([]);
@@ -16,8 +14,7 @@ function Chart({ id }) {
         
         const fetchData = async () => {
             try {
-                // const response = await axios.get('http://192.168.3.189:3001/api/flowmeter_log/'+id);
-                const response = await axios.get('http://52.77.11.180:3001/api/flowmeter_log/'+id);
+                const response = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/flowmeter_log/`+id);
                 
                 const data = response.data;
                 
