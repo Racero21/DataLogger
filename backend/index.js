@@ -23,8 +23,8 @@ const pool = mysql.createPool({
 });
 
 app.get('/api/logger', (req, res) => {
-    const query2 = 'SELECT LoggerId FROM datalogger ORDER BY LoggerId ASC';
-    pool.query(query2, (error, results) => {
+    const query = 'SELECT * FROM datalogger ORDER BY LoggerId ASC';
+    pool.query(query, (error, results) => {
         if(error) {
             return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
         }
@@ -33,8 +33,18 @@ app.get('/api/logger', (req, res) => {
 });
 
 app.get('/api/timelogger', (req, res) => {
-    const query2 = 'SELECT LogTime, AverageVoltage FROM flowmeter_log ORDER BY LogTime ASC';
-    pool.query(query2, (error, results) => {
+    const query = 'SELECT LogTime, AverageVoltage FROM flowmeter_log ORDER BY LogTime ASC';
+    pool.query(query, (error, results) => {
+        if(error) {
+            return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
+        }
+        res.json(results)
+    });
+});
+
+app.get('/api/maplogger', (req, res) => {
+    const query = 'SELECT LoggerId, Name, Latitude, Longitude FROM datalogger ORDER BY Name ASC';
+    pool.query(query, (error, results) => {
         if(error) {
             return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
         }
@@ -59,6 +69,6 @@ app.get('/api/flowmeter_log/:id?', (req, res) => {
 });
 
 // Start the server on port 3001
-app.listen(PORT, () => {
+app.listen(process.env.DB_PORT, () => {
     console.log(`Server is running on http://${process.env.DB_HOST}:${process.env.DB_PORT}`);
 });
