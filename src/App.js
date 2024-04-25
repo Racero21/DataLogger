@@ -4,6 +4,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import axios from 'axios';
 import Logger from './components/Logger';
+import L from 'leaflet' 
 import Chart from './components/Chart';
 import ToggleButtonsMultiple from './components/Toggle';
 import MyMap from './components/Map';
@@ -50,7 +51,6 @@ function App() {
             ))
           case 'map':
             return <div style={{border:'2px solid #00b3ff', flex:'1',}}>
-              {/* <h1> MAP HERE </h1> */}
                 <div id="map">
                   <MyMap />
                 </div>

@@ -7,3 +7,15 @@
 .leaflet-tooltip-right:before {
     border: none !important;
 }
+.leaflet-tooltip-bottom{
+    border: none !important;
+    padding: 0%;
+    background: none;
+    /* background-color: transparent; */
+    font-size: medium;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-weight: bolder;
+    -webkit-text-stroke: .25px rgb(170, 170, 170);
+    color: rgb(12, 47, 77);
+    box-shadow: none;
+}
