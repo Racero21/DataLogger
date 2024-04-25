@@ -3,12 +3,23 @@ import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
 import { Grid, Card, CardContent, Typography } from '@mui/material';
+import 'chartjs-adapter-date-fns';
+import { LegendToggle } from '@mui/icons-material';
+import '../Chart.css'
+import { Box } from '@mui/material';
 
 function Chart({ id }) {
     const [datac, setCData] = useState(null);
     // const [scatterData, setScatterData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const borderColor = {
+      voltage: 'rgba(75,192,192,1)',
+      flow: 'rgba(255,192,255,1)',
+      positive: 'rgba(255,0,255,255)',
+      negative: 'rgba(255,192,0,60)',
+    };
     
     useEffect(() => {
         
@@ -25,26 +36,32 @@ function Chart({ id }) {
                         {
                             label: 'Average Voltage',
                             data: data.map(item => item.AverageVoltage),
-                            borderColor: 'rgba(75,192,192,1)',
-                            fill: false,
+                            borderColor: borderColor.voltage,
+                            // backgroundColor: 'brown',
+                            color: 'yellow',
+                            fill: true,
+                            hidden: false,
                         },
                         {
                             label: 'Current Flow',
                             data: data.map(item => item.CurrentFlow),
-                            borderColor: 'rgba(255,192,255,1)',
-                            fill: false,
+                            borderColor: borderColor.flow,
+                            fill: true,
+                            hidden: false,
                         },
                         {
                             label: 'Flow Positive',
                             data: data.map(item => item.TotalFlowPositive),
-                            borderColor: 'rgba(255,0,255,255)',
-                            fill: false,
+                            borderColor: borderColor.positive,
+                            fill: true,
+                            hidden: false,
                         },
                         {
                             label: 'Flow Negative',
                             data: data.map(item => item.TotalFlowNegative),
-                            borderColor: 'rgba(255,192,0,60)',
-                            fill: false,
+                            borderColor: borderColor.negative,
+                            fill: true,
+                            hidden: false,
                         },
                         // Add more datasets if needed
                     ]
@@ -77,42 +94,55 @@ function Chart({ id }) {
     function getUnitofMeasurement(label) {
         switch (label) {
             case 'Average Voltage':
-                return ' V';
+                return 'V';
             case 'Current Flow':
-                return ' psi';
+                return 'psi';
             case 'Flow Positive':
             case 'Flow Negative':
-                return ' Liters';
+                return 'Liters';
             default: 
                 return '';
         }
     }
-    const footer = (tooltipItems) => {
-        let sum = 0;
-      
-        tooltipItems.forEach(function(tooltipItem) {
-          sum += tooltipItem.parsed.y;
-        });
-        return 'Sum: ' + sum;
-      };
 
     const options = {
         
         responsive: true,
+        maintainAspectRatio: true,
         // maintainAspectRatio: true, // This allows setting explicit height and width
         // // Set the desired height and width here
         // // You can use static values or calculate them dynamically
         // // Example static values:
         // height: 50,
         // width: 50,
+        scales: {
+          x: {
+            type: 'time',
+            time: {
+              unit: 'second'
+            }
+          }
+        },
         plugins: {      
             title: {
+                font: {
+                    size: 20,
+                },
                 display: true,
-                text: 'Voltage and Current Flow Over Time'
+                text: 'Time Series Data'
+            },
+            subtitle: {
+              display: true,
+              text: 'LoggerID: ' + id,
+              padding: {
+                bottom: 10
+              }
+            },
+            legend: {
+              display: false,
             },
             tooltip: {
                 callbacks: {
-                    footer: footer,
                     label: (item) => `${item.dataset.label}: ${item.formattedValue} ${getUnitofMeasurement(item.dataset.label)}`
                 }
             },
@@ -128,7 +158,24 @@ function Chart({ id }) {
         // }
       };
     
-    
+      const handleCardClick = (legend) => {
+        const updatedDatasets = datac.datasets.map((dataset) => {
+          if (dataset.label === legend) {
+            // Toggle the visibility of the dataset
+            return {
+              ...dataset,
+              hidden: !dataset.hidden, // Toggle visibility
+            };
+          }
+          return dataset;
+        });
+      
+        // Update the chart data with the updated datasets
+        setCData({
+          ...datac,
+          datasets: updatedDatasets,
+        });
+      };
 
     //   const scatterOptions = {
     //     responsive: true,
@@ -165,13 +212,19 @@ function Chart({ id }) {
 
     return (
         <div>
+      
+      <h1>LoggerId {id}</h1>
+      {/* Chart Component */}
+      <Box sx={{display: 'inherit', alignItems: 'center',}} >
+      <Line data={datac} options={options}/>
+      </Box>
       <Grid container spacing={2}>
         {/* First Card */}
-        <Grid item xs={4}>
-          <Card>
+        <Grid item xs={3}>
+          <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `1px solid ${borderColor.voltage}`}}>
             <CardContent>
               <Typography variant="h5" component="h2">
-                Card 1
+                Voltage
               </Typography>
               <Typography color="textSecondary">
                 This is the content of card 1.
@@ -181,11 +234,11 @@ function Chart({ id }) {
         </Grid>
 
         {/* Second Card */}
-        <Grid item xs={4}>
-          <Card>
+        <Grid item xs={3}>
+          <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `1px solid ${borderColor.flow}`}}>
             <CardContent>
               <Typography variant="h5" component="h2">
-                Card 2
+                Flow
               </Typography>
               <Typography color="textSecondary">
                 This is the content of card 2.
@@ -195,11 +248,25 @@ function Chart({ id }) {
         </Grid>
 
         {/* Third Card */}
-        <Grid item xs={4}>
-          <Card>
+        <Grid item xs={3}>
+          <Card className='card' onClick={() => handleCardClick('Flow Positive')} sx={{ border: `1px solid ${borderColor.positive}`}}>
             <CardContent>
               <Typography variant="h5" component="h2">
-                Card 3
+                Positive
+              </Typography>
+              <Typography color="textSecondary">
+                This is the content of card 3.
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Fourth Card */}
+        <Grid item xs={3}>
+          <Card className='card' onClick={() => handleCardClick('Flow Negative')} sx={{ border: `1px solid ${borderColor.negative}`}}>
+            <CardContent>
+              <Typography variant="h5" component="h2">
+                Negative
               </Typography>
               <Typography color="textSecondary">
                 This is the content of card 3.
@@ -208,11 +275,6 @@ function Chart({ id }) {
           </Card>
         </Grid>
       </Grid>
-
-      {/* Chart Component */}
-      <div style={{ marginTop: 20, height: 400 }}>
-      <Line data={datac} options={options}/>
-      </div>
     </div>
         // <div id="chart" style={{height:'33vh', width: '30vw'}}>
         //     <Line data={datac} options={options}/>

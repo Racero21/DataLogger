@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 // import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import axios from 'axios';
 import Logger from './components/Logger';
 import Chart from './components/Chart';
@@ -23,15 +25,24 @@ function App() {
           case 'statistics':
             console.log(data)
             return data.map(item => (
-                <Box
-                // height={30%}
-                // width={200}
+                <Box                
                 // my={4}
                 display="flex"
-                alignContent="center"
+                alignItems = "center"
+                // alignContent="center"
                 // gap={4}
                 p={2}
-                sx={{ border: '2px solid grey', height: '50vh', width: '47.5%'}}
+                sx={{ 
+                  // border: '2px solid grey', 
+                  height: '65vh', 
+                  width: '47.5%',
+                  boxShadow: 4,
+                  // bgcolor: '#568189',
+                  // bgcolor: '#1C4380',
+                  bgcolor:'white',
+                  borderRadius: '20px',
+                  overflow: 'auto'
+                }}
                 >
                   <Chart id={item.LoggerId} />
                 </Box>
@@ -69,7 +80,11 @@ function App() {
       fetchUniqueLoggers()
 
   }, [selectedComponent]);
-  
+  const darkTheme = createTheme({
+    palette: {
+      mode: 'light',
+    }
+  })
     return (
     //   <Router>
     //   <Switch>
@@ -77,12 +92,14 @@ function App() {
     //     <Route path="/map" component={MyMap} />
     //   </Switch>
     // </Router>
-        <div>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <div>
             <ToggleButtonsMultiple onChange={handleToggleChange}/>
             <Box
                 // my={4}
-                display="inline-flex"
-                alignItems="flex-start"
+                display="flex"
+                // alignItems="center"
                 // alignContent={'space-evenly'}
                 flexWrap={'wrap'}
                 gap={1.5}
@@ -94,6 +111,30 @@ function App() {
             </Box>
             
         </div>
+    </ThemeProvider>
+        // <div>
+        //     <ToggleButtonsMultiple onChange={handleToggleChange}/>
+        //     <Box
+        //         // my={4}
+        //         display="inline-flex"
+        //         // alignItems="center"
+        //         alignContent={'space-evenly'}
+        //         flexWrap={'wrap'}
+        //         gap={1.5}
+        //         flexDirection={'row'}
+        //         p={1}
+        //         sx={{ 
+        //           border: '2px solid grey', 
+        //           height: '100%', 
+        //           width: '100vw', 
+        //           bgcolor: '#A5D8DD',
+        //           maxWidth:'100%',
+        //         }}
+        //       >
+        //     {renderComponent()}
+        //     </Box>
+            
+        // </div>
     );
 }
 
