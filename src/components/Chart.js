@@ -4,14 +4,13 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
 import { Grid, Card, CardContent, Typography } from '@mui/material';
 import 'chartjs-adapter-date-fns';
-import { LegendToggle } from '@mui/icons-material';
 import '../Chart.css'
 import { Box } from '@mui/material';
 
 function Chart({ id }) {
     const [datac, setCData] = useState(null);
-    // const [scatterData, setScatterData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [latest, setLatest] = useState([]);
     const [error, setError] = useState(null);
 
     const borderColor = {
@@ -28,7 +27,11 @@ function Chart({ id }) {
                 const response = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/flowmeter_log/`+id);
                 
                 const data = response.data;
-                
+                const lastElement = data[data.length - 1];
+
+                setLatest(lastElement);
+                console.log(data)
+                console.log(latest);
                 // Process the data from the response and create the data object for the chart
                 const transformedData = {
                     labels: data.map(item => item.LogTime),
@@ -66,14 +69,11 @@ function Chart({ id }) {
                         // Add more datasets if needed
                     ]
                 };
-
-                // const scatterPlotData = data.map(item => ({
-                //     x: item.AverageVoltage,
-                //     y: item.CurrentFlow
-                // }));
-                 
                 
                 setCData(transformedData);
+                // console.log(datac)
+                
+                
                 setLoading(false);
                 // setScatterData(scatterPlotData)
             } catch (error) {
@@ -90,7 +90,7 @@ function Chart({ id }) {
         //         chartInstance.destroy();
         //     }
         // };
-    }, [id]);
+    }, [id, borderColor.flow, borderColor.negative, borderColor.positive, borderColor.voltage]);
     function getUnitofMeasurement(label) {
         switch (label) {
             case 'Average Voltage':
@@ -109,12 +109,6 @@ function Chart({ id }) {
         
         responsive: true,
         maintainAspectRatio: true,
-        // maintainAspectRatio: true, // This allows setting explicit height and width
-        // // Set the desired height and width here
-        // // You can use static values or calculate them dynamically
-        // // Example static values:
-        // height: 50,
-        // width: 50,
         scales: {
           x: {
             type: 'time',
@@ -147,15 +141,6 @@ function Chart({ id }) {
                 }
             },
         },
-        // Example dynamic values based on parent container size:
-        // layout: {
-        //   padding: {
-        //     top: 50,
-        //     left: 50,
-        //     right: 50,
-        //     bottom: 50
-        //   }
-        // }
       };
     
       const handleCardClick = (legend) => {
@@ -177,33 +162,6 @@ function Chart({ id }) {
         });
       };
 
-    //   const scatterOptions = {
-    //     responsive: true,
-    //     maintainAspectRatio: false,
-    //     plugins: {      
-    //         title: {
-    //             display: true,
-    //             text: 'Current Flow to Voltage'
-    //         },
-    //     },
-    //     scales: {
-    //         x: {
-    //             type: 'linear',
-    //             position: 'bottom',
-    //             title: {
-    //                 display: true,
-    //                 text: 'Voltage'
-    //             }
-    //         },
-    //         y: {
-    //             title: {
-    //                 display: true,
-    //                 text: 'Flow'
-    //             }
-    //         }
-    //     }
-    // };
-
     if(loading) {
         return (
             <div>Loading...</div>
@@ -213,36 +171,42 @@ function Chart({ id }) {
     return (
         <div>
       
-      <h1>LoggerId {id}</h1>
+      {/* <h1>LoggerId {id}</h1> */}
       {/* Chart Component */}
-      <Box sx={{display: 'inherit', alignItems: 'center',}} >
+      {/* <Box sx={{ alignItems: 'center',}} > */}
       <Line data={datac} options={options}/>
-      </Box>
+      {/* </Box> */}
       <Grid container spacing={2}>
         {/* First Card */}
         <Grid item xs={3}>
-          <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `1px solid ${borderColor.voltage}`}}>
-            <CardContent>
+          <Card className='card'  onHover={() => handleCardClick('Average Voltage')} onClick={() => handleCardClick('Average Voltage')} sx={{ border: `1px solid ${borderColor.voltage}`}}>
+            <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
+              <Grid item container direction={'column'}>
               <Typography variant="h5" component="h2">
                 Voltage
               </Typography>
               <Typography color="textSecondary">
-                This is the content of card 1.
+                {latest.AverageVoltage} Volts
               </Typography>
+              </Grid>
+              GAUGE
             </CardContent>
           </Card>
         </Grid>
 
         {/* Second Card */}
         <Grid item xs={3}>
-          <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `1px solid ${borderColor.flow}`}}>
-            <CardContent>
+          <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `1px solid ${borderColor.flow}`, display: 'flex', flexDirection:'row'}}>
+            <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
+            <Grid item container direction={'column'}>
               <Typography variant="h5" component="h2">
                 Flow
               </Typography>
               <Typography color="textSecondary">
-                This is the content of card 2.
+              {latest.CurrentFlow} psi
               </Typography>
+            </Grid>
+            GAUGE
             </CardContent>
           </Card>
         </Grid>
@@ -250,13 +214,35 @@ function Chart({ id }) {
         {/* Third Card */}
         <Grid item xs={3}>
           <Card className='card' onClick={() => handleCardClick('Flow Positive')} sx={{ border: `1px solid ${borderColor.positive}`}}>
-            <CardContent>
-              <Typography variant="h5" component="h2">
+            <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
+              <Grid container spacing={2}>
+                {/* <Grid item>
+                  GAUGE
+                </Grid>  */}
+                <Grid item xs={12} sm container>
+                  <Grid item xs container direction={"column"} spacing={2}>
+                    <Grid item xs>
+                      <Typography variant="h5" component="h2">
+                        Positive
+                      </Typography>
+                      <Typography color={"textSecondary"}>
+                        {latest.TotalFlowPositive} Liters
+                      </Typography>
+                      
+                      {/* <Typography gutterBottom variant='subtitle1' component={'div'}>
+                        Positive
+                      </Typography> */}
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+              GAUGE
+              {/* <Typography variant="h5" component="h2">
                 Positive
               </Typography>
               <Typography color="textSecondary">
                 This is the content of card 3.
-              </Typography>
+              </Typography> */}
             </CardContent>
           </Card>
         </Grid>
@@ -264,31 +250,22 @@ function Chart({ id }) {
         {/* Fourth Card */}
         <Grid item xs={3}>
           <Card className='card' onClick={() => handleCardClick('Flow Negative')} sx={{ border: `1px solid ${borderColor.negative}`}}>
-            <CardContent>
+            <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
+              <Grid item container direction={'column'}>
               <Typography variant="h5" component="h2">
                 Negative
               </Typography>
               <Typography color="textSecondary">
-                This is the content of card 3.
+                {latest.TotalFlowNegative} Liters
               </Typography>
+              </Grid>
+              GAUGE
             </CardContent>
           </Card>
         </Grid>
       </Grid>
     </div>
-        // <div id="chart" style={{height:'33vh', width: '30vw'}}>
-        //     <Line data={datac} options={options}/>
-        // </div>
     );
 }
 
 export default Chart;
-
- {/* </div> */}
-            {/* <div style={{ height: 400, width: 600 }}>
-                <Scatter data={{ datasets: [{ data: scatterData, label: 'Current Flow to Voltage'}] }} options={scatterOptions} />
-            </div> */}
-
-
-            {/* <h1>LoggerId: {id}</h1> */}
-            {/* <div style={{height:400, width:600}}> */}

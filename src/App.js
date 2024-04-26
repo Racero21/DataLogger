@@ -27,21 +27,21 @@ function App() {
             return data.map(item => (
                 <Box                
                 // my={4}
-                display="flex"
+                // display="flex"
                 alignItems = "center"
                 // alignContent="center"
                 // gap={4}
                 p={2}
                 sx={{ 
                   // border: '2px solid grey', 
-                  height: '65vh', 
+                  // height: '65vh', 
                   width: '47.5%',
                   boxShadow: 4,
                   // bgcolor: '#568189',
                   // bgcolor: '#1C4380',
                   bgcolor:'white',
                   borderRadius: '20px',
-                  overflow: 'auto'
+                  // overflow: 'auto'
                 }}
                 >
                   <Chart id={item.LoggerId} />
@@ -82,9 +82,38 @@ function App() {
   }, [selectedComponent]);
   const darkTheme = createTheme({
     palette: {
-      mode: 'light',
+      mode: 'dark',
+      primary: {
+        main: '#00bcd4', // Cyan color
+      },
+      secondary: {
+        main: '#ffeb3b', // Yellow color
+      },
     }
   })
+
+  const lightTheme = createTheme({
+    palette: {
+      primary: {
+        main: '#2196f3', // Blue color
+      },
+      secondary: {
+        main: '#4caf50', // Green color
+      },
+    },
+  });
+
+  // const gradientTheme = createTheme({
+  //   palette: {
+  //     primary: {
+  //       main: 'linear-gradient(to right, #ff416c, #ff4b2b)', // Gradient from pink to orange
+  //     },
+  //     secondary: {
+  //       main: 'linear-gradient(to right, #4caf50, #2196f3)', // Gradient from green to blue
+  //     },
+  //   },
+  // });
+
     return (
     //   <Router>
     //   <Switch>
@@ -92,8 +121,8 @@ function App() {
     //     <Route path="/map" component={MyMap} />
     //   </Switch>
     // </Router>
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
+    // <ThemeProvider theme={darkTheme}>
+      // <CssBaseline />
       <div>
             <ToggleButtonsMultiple onChange={handleToggleChange}/>
             <Box
@@ -111,30 +140,7 @@ function App() {
             </Box>
             
         </div>
-    </ThemeProvider>
-        // <div>
-        //     <ToggleButtonsMultiple onChange={handleToggleChange}/>
-        //     <Box
-        //         // my={4}
-        //         display="inline-flex"
-        //         // alignItems="center"
-        //         alignContent={'space-evenly'}
-        //         flexWrap={'wrap'}
-        //         gap={1.5}
-        //         flexDirection={'row'}
-        //         p={1}
-        //         sx={{ 
-        //           border: '2px solid grey', 
-        //           height: '100%', 
-        //           width: '100vw', 
-        //           bgcolor: '#A5D8DD',
-        //           maxWidth:'100%',
-        //         }}
-        //       >
-        //     {renderComponent()}
-        //     </Box>
-            
-        // </div>
+    // </ThemeProvider>
     );
 }
 
