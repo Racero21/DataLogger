@@ -9,6 +9,7 @@ import Chart from './components/Chart';
 import ToggleButtonsMultiple from './components/Toggle';
 import MyMap from './components/Map';
 import { Box } from '@mui/material';
+import TextField from '@mui/material/TextField';
 // import { Router } from '@mui/icons-material';
 
 function App() {
@@ -27,20 +28,20 @@ function App() {
             console.log(data)
             return data.map(item => (
                 <Box                
-                // my={4}
+                // m={1}
                 // display="flex"
                 alignItems = "center"
                 // alignContent="center"
-                // gap={4}
+                // gap={1.5}
                 p={2}
                 sx={{ 
                   // border: '2px solid grey', 
                   // height: '65vh', 
-                  width: '47.5%',
+                  width: '47.9%',
                   boxShadow: 4,
                   // bgcolor: '#568189',
                   // bgcolor: '#1C4380',
-                  bgcolor:'white',
+                  // bgcolor:'white',
                   borderRadius: '20px',
                   // overflow: 'auto'
                 }}
@@ -125,6 +126,19 @@ function App() {
       // <CssBaseline />
       <div>
             <ToggleButtonsMultiple onChange={handleToggleChange}/>
+            <Box
+              component="form"
+              sx={{
+                '& > :not(style)': { m: 1, width: '25ch' },
+                display: 'flex',
+                justifyContent: 'center',
+                alignContent: 'center'
+              }}
+              noValidate
+              autoComplete="off"
+            >
+              <TextField id="outlined-basic" label="Outlined" variant="outlined" />
+            </Box>
             <Box
                 // my={4}
                 display="flex"
