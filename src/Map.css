@@ -1,6 +1,6 @@
-.leaflet-tooltip{
+/* .leaflet-tooltip{
     border: 1px solid grey;
-}
+} */
 .leaflet-tooltip-top:before, 
 .leaflet-tooltip-bottom:before, 
 .leaflet-tooltip-left:before, 
@@ -11,11 +11,15 @@
     border: none !important;
     padding: 0%;
     background: none;
+    border-radius: 0%;
     /* background-color: transparent; */
     font-size: medium;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     font-weight: bolder;
-    -webkit-text-stroke: .25px rgb(170, 170, 170);
+    -webkit-text-stroke: 0.15px rgb(170, 170, 170);
     color: rgb(12, 47, 77);
     box-shadow: none;
+}
+.leaflet-tooltip-top{
+  padding: 5px 5px;
 }
