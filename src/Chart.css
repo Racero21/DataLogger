@@ -1,4 +1,6 @@
 .card:hover {
     transform: scale(1.1);
     transition-duration: 0.5s;
-  }
+    background-color: lightblue;
+    box-shadow: 5;
+}
