@@ -62,11 +62,21 @@ app.get('/api/flowmeter_log/:id?', (req, res) => {
     console.log(query)
     pool.query(query, LoggerId ? [LoggerId] : [], (error, results) => {
         if(error) {
-            return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
+            return res.status(500).json({error: `Failed to fetch data: ${error.message}`});
         }
         res.json(results)
     });
 });
+
+app.get('/api/latest_logs', (req, res) => {
+    let query = 'SELECT * FROM latest_logs'
+    pool.query(query, (error, results) => {
+        if(error){
+            return res.status(500).json({error: `Failed to fetch data: ${error.message}`})
+        }
+        res.json(results)
+    })
+})
 
 // Start the server on port 3001
 app.listen(process.env.DB_PORT, () => {
