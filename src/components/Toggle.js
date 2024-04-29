@@ -1,4 +1,5 @@
-import React from 'react';
+// import React from 'react';
+import React, { useState } from 'react';
 import InsightsIcon from '@mui/icons-material/Insights';
 import MapIcon from '@mui/icons-material/Map';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -10,10 +11,23 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { AppBar } from '@mui/material';
+import TextField from '@mui/material/TextField';
 
-export default function ToggleButtonsMultiple({ onChange }) {
+export default function ToggleButtonsMultiple({ onChange, query }) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    query(searchQuery);
+    console.log(searchQuery);
+  };
+
+  // const filteredData = search.filter((item) =>
+  //   item.LoggerId.toLowerCase().includes(searchQuery.toLowerCase()) || item.Name.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
+
   return (
-    <Box sx={{ flexGrow: 1, width:'100%'}}>
+    <Box sx={{ flexGrow: 1, width:'100%', display: 'flex', justifyContent: 'center'}}>
       <AppBar position="static" style={{ zIndex: 1000 }}>
         <Toolbar>
           <IconButton
@@ -27,6 +41,13 @@ export default function ToggleButtonsMultiple({ onChange }) {
           </IconButton>
           
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <TextField
+              id="search"
+              label="Search"
+              variant="outlined"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
           <Button color="inherit" onClick={() => onChange(null, 'statistics')}>
             <InsightsIcon sx={{ mr: 1 }} />
             Dashboard

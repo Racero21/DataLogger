@@ -1,86 +1,83 @@
 import React, { useEffect, useState } from 'react';
-// import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import axios from 'axios';
 import Logger from './components/Logger';
-import L from 'leaflet' 
 import Chart from './components/Chart';
 import ToggleButtonsMultiple from './components/Toggle';
 import MyMap from './components/Map';
 import { Box } from '@mui/material';
 import TextField from '@mui/material/TextField';
-// import { Router } from '@mui/icons-material';
 
 function App() {
-    const [data, setData] = useState([]);
-    const [error, setError] = useState(null);
-    const [selectedComponent, setSelectedComponent] = useState('statistics');
+  const [data, setData] = useState([]);
+  // const [searchData, setSearchData]
+  const [error, setError] = useState(null);
+  const [selectedComponent, setSelectedComponent] = useState('statistics');
+  const [searchQuery, setSearchQuery] = useState('');
 
-    const handleToggleChange = (event, newComponent) => {
-        if (newComponent !== null)
-            setSelectedComponent(newComponent);
+  const handleToggleChange = (event, newComponent) => {
+    if (newComponent !== null) setSelectedComponent(newComponent);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const filteredData = data.filter((item) =>
+    item.LoggerId.toLowerCase().includes(searchQuery.toLowerCase()) || item.Name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getChild = (query) => {
+    setSearchQuery(query)
+  }
+
+  const renderComponent = () => {
+    switch (selectedComponent) {
+      case 'statistics':
+        return filteredData.map((item) => (
+          <Box
+            p={2}
+            sx={{
+              width: '47.9%',
+              boxShadow: 4,
+              borderRadius: '20px',
+            }}
+          >
+            <Chart id={item.LoggerId} />
+          </Box>
+        ));
+      case 'map':
+        return (
+          <div style={{ border: '2px solid #00b3ff', flex: '1' }}>
+            <div id="map">
+              <MyMap />
+            </div>
+          </div>
+        );
+      case 'config':
+        return <Logger />;
+      default:
+        return <h1>XDD</h1>;
+    }
+  };
+
+  useEffect(() => {
+    const fetchUniqueLoggers = async () => {
+      try {
+        const response = await axios.get(
+          `http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger/`
+        );
+        const data = response.data;
+        setData(data);
+      } catch (error) {
+        setError('Error fetching data: ' + error.message);
+      }
     };
 
-    const renderComponent = () => {
-        switch (selectedComponent) {
-          case 'statistics':
-            console.log(data)
-            return data.map(item => (
-                <Box                
-                // m={1}
-                // display="flex"
-                alignItems = "center"
-                // alignContent="center"
-                // gap={1.5}
-                p={2}
-                sx={{ 
-                  // border: '2px solid grey', 
-                  // height: '65vh', 
-                  width: '47.9%',
-                  boxShadow: 4,
-                  // bgcolor: '#568189',
-                  // bgcolor: '#1C4380',
-                  // bgcolor:'white',
-                  borderRadius: '20px',
-                  // overflow: 'auto'
-                }}
-                >
-                  <Chart id={item.LoggerId} />
-                </Box>
-              // </Box>
-            ))
-          case 'map':
-            return <div style={{border:'2px solid #00b3ff', flex:'1',}}>
-                <div id="map">
-                  <MyMap />
-                </div>
-            </div>;
-          case 'config':
-            return <Logger />;
-          case 'other':
-            return <Logger />;
-          default:
-            return <h1>XDD</h1>;
-        }
-      };
-
-    useEffect(() => {
-      // Make an API call to your Node.js backend using axios
-      const fetchUniqueLoggers = async () => {
-            try {
-                const response = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger/`);
-                const data = response.data;
-                
-                setData(data)
-            } catch (error) {
-                setError('Error fetching data: ' + error.message);
-            }
-        }
-      
-      fetchUniqueLoggers()
-
+    fetchUniqueLoggers();
   }, [selectedComponent]);
+
   const darkTheme = createTheme({
     palette: {
       mode: 'dark',
@@ -90,8 +87,8 @@ function App() {
       secondary: {
         main: '#ffeb3b', // Yellow color
       },
-    }
-  })
+    },
+  });
 
   const lightTheme = createTheme({
     palette: {
@@ -104,58 +101,31 @@ function App() {
     },
   });
 
-  // const gradientTheme = createTheme({
-  //   palette: {
-  //     primary: {
-  //       main: 'linear-gradient(to right, #ff416c, #ff4b2b)', // Gradient from pink to orange
-  //     },
-  //     secondary: {
-  //       main: 'linear-gradient(to right, #4caf50, #2196f3)', // Gradient from green to blue
-  //     },
-  //   },
-  // });
-
-    return (
-    //   <Router>
-    //   <Switch>
-    //     <Route path="/" exact component={renderComponent()} />
-    //     <Route path="/map" component={MyMap} />
-    //   </Switch>
-    // </Router>
-    // <ThemeProvider theme={darkTheme}>
-      // <CssBaseline />
+  return (
+    <ThemeProvider theme={lightTheme}>
+      <CssBaseline />
       <div>
-            <ToggleButtonsMultiple onChange={handleToggleChange}/>
-            <Box
-              component="form"
-              sx={{
-                '& > :not(style)': { m: 1, width: '25ch' },
-                display: 'flex',
-                justifyContent: 'center',
-                alignContent: 'center'
-              }}
-              noValidate
-              autoComplete="off"
-            >
-              <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-            </Box>
-            <Box
-                // my={4}
-                display="flex"
-                // alignItems="center"
-                // alignContent={'space-evenly'}
-                flexWrap={'wrap'}
-                gap={1.5}
-                flexDirection={'row'}
-                p={1}
-                sx={{ boxSizing:'border-box', border:'2px solid grey', height: '100%', width: '100vw', maxWidth:'100%'}}
-              >
-            {renderComponent()}
-            </Box>
-            
-        </div>
-    // </ThemeProvider>
-    );
+        <ToggleButtonsMultiple onChange={handleToggleChange} query={getChild}/>
+        {/* <TextField
+          id="search"
+          label="Search Logger"
+          variant="outlined"
+          value={searchQuery}
+          onChange={handleSearchChange}
+        /> */}
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          gap={1.5}
+          flexDirection="row"
+          p={1}
+          sx={{ boxSizing: 'border-box', border: '2px solid grey', height: '100%', width: '100vw', maxWidth: '100%' }}
+        >
+          {renderComponent()}
+        </Box>
+      </div>
+    </ThemeProvider>
+  );
 }
 
 export default App;
