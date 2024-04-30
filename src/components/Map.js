@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { Component, useEffect, useState, useRef } from 'react';
 import { Icon, divIcon,  } from 'leaflet';
 import { MapContainer, TileLayer, Marker,  Tooltip,  } from 'react-leaflet';
 import axios from 'axios';
@@ -9,6 +9,8 @@ const markerIcon = new Icon({
   iconUrl:require("../img/meter.png"),
   iconSize:[30,30]
 });
+
+const pollInterval = 1000
 
 function MyMap() {
   const [loggerData, setLoggerData] = useState([]);
@@ -30,7 +32,10 @@ function MyMap() {
       mapRef.current.setUrl(mapUrl === "osm" ? mapOsm : mapSatellite);
     }
   }, [mapUrl])
-    
+
+
+  
+  // Initial Setup    
   useEffect(() => {
       (async () => {
         try {
@@ -38,14 +43,32 @@ function MyMap() {
             const logResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/latest_logs`);
             setLoggerData(loggerResponse.data)
             setLogData(logResponse.data)
-            console.log('loggerdata'+loggerData)
-            console.log('loggerdata'+logData)
+            // console.log('loggerdata'+loggerData)
+            // console.log('loggerdata'+logData)
         } catch(e){
           setError('Error fetching data: ' + e.message);
         }
       })()
   },[]);
 
+  // Setup log data polling
+  useEffect(() => {
+    let count = 0
+    let dataTimeout = null;
+    const fetchData = async() => {
+      const logResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/latest_logs`)
+        .catch( (error) => {
+        console.log(error.toJSON)
+    })
+      setLogData(logResponse.data)
+      count += 1
+      console.log('count',count)
+      dataTimeout = setTimeout(fetchData, pollInterval)
+    }
+    dataTimeout = setTimeout(fetchData, pollInterval)
+    return () => clearTimeout(dataTimeout)
+  },[])
+  
   return (
     <>
     <Button onClick={onClick}>Switch Map Type</Button>
