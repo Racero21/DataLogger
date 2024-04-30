@@ -13,18 +13,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { AppBar } from '@mui/material';
 import TextField from '@mui/material/TextField';
 
-export default function ToggleButtonsMultiple({ onChange, query }) {
-  const [searchQuery, setSearchQuery] = useState('');
-
+export default function ToggleButtonsMultiple({ onChange, setSearchQuery }) {
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
-    query(searchQuery);
-    console.log(searchQuery);
   };
-
-  // const filteredData = search.filter((item) =>
-  //   item.LoggerId.toLowerCase().includes(searchQuery.toLowerCase()) || item.Name.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
 
   return (
     <Box sx={{ flexGrow: 1, width:'100%', display: 'flex', justifyContent: 'center'}}>
@@ -40,13 +32,18 @@ export default function ToggleButtonsMultiple({ onChange, query }) {
             <MenuIcon />
           </IconButton>
           
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'inline-flex', justifyContent: 'flex-start' }}>
           <TextField
+              sx={{backgroundColor: "white", borderRadius: '10px'}}
               id="search"
               label="Search"
               variant="outlined"
-              value={searchQuery}
+              margin='normal'
               onChange={handleSearchChange}
+              // InputProps={{
+              //   sx: { color: 'white' }, // Set text color to white
+              //   style: { borderColor: 'white' } // Set outline color to white
+              // }}
             />
           <Button color="inherit" onClick={() => onChange(null, 'statistics')}>
             <InsightsIcon sx={{ mr: 1 }} />

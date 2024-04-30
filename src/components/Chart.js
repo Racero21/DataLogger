@@ -187,12 +187,7 @@ function Chart({ id }) {
 
     return (
         <div>
-      
-      {/* <h1>LoggerId {id}</h1> */}
-      {/* Chart Component */}
-      {/* <Box sx={{ alignItems: 'center',}} > */}
       <Line data={datac} options={options}/>
-      {/* </Box> */}
       <Grid container spacing={2}>
         {/* First Card */}
         <Grid item xs={4}>
@@ -215,6 +210,7 @@ function Chart({ id }) {
                 formatTextValue={(value) => value/10 + 'V'}
                 arcsLength={[0.1, 0.1, 0.6, 0.1, 0.1]}
                 colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
+                animate={false}
                 textColor='black'
                 marginInPercent={0}
                 hideText={true}
@@ -246,6 +242,7 @@ function Chart({ id }) {
                 formatTextValue={(value) => value + 'V'}
                 arcsLength={[0.2, 0.19, 0.44, 0.06, 0.1]}
                 colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
+                animate={false}
                 textColor='black'
                 marginInPercent={0}
                 hideText={true}

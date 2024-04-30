@@ -8,6 +8,7 @@ import ToggleButtonsMultiple from './components/Toggle';
 import MyMap from './components/Map';
 import { Box } from '@mui/material';
 import TextField from '@mui/material/TextField';
+import Login from './Login';
 
 function App() {
   const [data, setData] = useState([]);
@@ -39,7 +40,7 @@ function App() {
           <Box
             p={2}
             sx={{
-              width: '47.9%',
+              width: '47.5%',
               boxShadow: 4,
               borderRadius: '20px',
             }}
@@ -58,7 +59,7 @@ function App() {
       case 'config':
         return <Logger />;
       default:
-        return <h1>XDD</h1>;
+        return <Login />;
     }
   };
 
@@ -105,7 +106,7 @@ function App() {
     <ThemeProvider theme={lightTheme}>
       <CssBaseline />
       <div>
-        <ToggleButtonsMultiple onChange={handleToggleChange} query={getChild}/>
+        <ToggleButtonsMultiple onChange={handleToggleChange} setSearchQuery={setSearchQuery}/>
         {/* <TextField
           id="search"
           label="Search Logger"
@@ -116,10 +117,11 @@ function App() {
         <Box
           display="flex"
           flexWrap="wrap"
+          justifyContent={"center"}
           gap={1.5}
           flexDirection="row"
           p={1}
-          sx={{ boxSizing: 'border-box', border: '2px solid grey', height: '100%', width: '100vw', maxWidth: '100%' }}
+          sx={{ boxSizing: 'border-box',  height: '100%', width: '100vw', maxWidth: '100%' }}
         >
           {renderComponent()}
         </Box>
