@@ -40,7 +40,7 @@ function App() {
           <Box
             p={2}
             sx={{
-              width: '47.5%',
+              width: '30%',
               boxShadow: 4,
               borderRadius: '20px',
             }}
