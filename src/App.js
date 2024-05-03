@@ -4,10 +4,10 @@ import CssBaseline from '@mui/material/CssBaseline';
 import axios from 'axios';
 import Logger from './components/Logger';
 import Chart from './components/Chart';
+import Pressure from './Pressure'
 import ToggleButtonsMultiple from './components/Toggle';
 import MyMap from './components/Map';
 import { Box } from '@mui/material';
-import TextField from '@mui/material/TextField';
 import Login from './Login';
 
 function App() {
@@ -21,17 +21,9 @@ function App() {
     if (newComponent !== null) setSelectedComponent(newComponent);
   };
 
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
-
   const filteredData = data.filter((item) =>
     item.LoggerId.toLowerCase().includes(searchQuery.toLowerCase()) || item.Name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const getChild = (query) => {
-    setSearchQuery(query)
-  }
 
   const renderComponent = () => {
     switch (selectedComponent) {
@@ -45,7 +37,8 @@ function App() {
               borderRadius: '20px',
             }}
           >
-            <Chart id={item.LoggerId} />
+            {item.Name.toLowerCase().includes('pressure') ? <Pressure id={item.LoggerId} />: <Chart id={item.LoggerId} name={item.Name} />}
+            {/* <Chart id={item.LoggerId} /> */}
           </Box>
         ));
       case 'map':
