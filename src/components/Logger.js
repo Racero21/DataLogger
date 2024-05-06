@@ -11,27 +11,26 @@ import Paper from '@mui/material/Paper';
 
 import { Modal, Box, TextField, Typography } from '@mui/material';
 
+const pollInterval = 1000
+
 function Logger() {
     const [loggers, setLoggers] = useState([]);
     const [open, setOpen] = useState(false);
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-
+    
     useEffect(() => {
-      // Make an API call to your Node.js backend using axios
-      axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger`)
-          .then(response => {
-              // Set the data in state
-              console.log(response.data)
-              setLoggers(response.data);
-              console.log("Success!! LOGGERS");
-              console.log(loggers);
-          })
-          .catch(error => {
-              console.error('Error fetching data:', error);
-          });  
-  }, [loggers]);
+        let dataTimeout = null;
+        const fetchData = async(init) => {
+            const loggerResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger`)
+            setLoggers(loggerResponse.data)
+        if(!init) dataTimeout = setTimeout(fetchData, pollInterval)
+        }
+        fetchData(true)
+        dataTimeout = setTimeout(fetchData, pollInterval)
+        return () => clearTimeout(dataTimeout)
+  }, []);
   
     return (
         <div>

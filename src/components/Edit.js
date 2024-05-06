@@ -9,22 +9,8 @@ function Edit({pack}) {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    console.log(pack)
-//     useEffect(() => {
-//       // Make an API call to your Node.js backend using axios
-//       axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger`)
-//           .then(response => {
-//               // Set the data in state
-//               console.log(response.data)
-//               setLoggers(response.data);
-//               console.log("Success!! LOGGERS");
-//               console.log(loggers);
-//           })
-//           .catch(error => {
-//               console.error('Error fetching data:', error);
-//           });  
-//   }, [loggers]);
-  
+    // console.log(pack)
+ 
     
     return (
         <div>
