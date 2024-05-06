@@ -9,6 +9,9 @@ import ToggleButtonsMultiple from './components/Toggle';
 import MyMap from './components/Map';
 import { Box } from '@mui/material';
 import Login from './Login';
+import AuthProvider from './auth/AuthProvider';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import PrivateRoute from './route/PrivateRoute';
 
 function App() {
   const [data, setData] = useState([]);
@@ -23,7 +26,17 @@ function App() {
 
   const filteredData = data.filter((item) =>
     item.LoggerId.toLowerCase().includes(searchQuery.toLowerCase()) || item.Name.toLowerCase().includes(searchQuery.toLowerCase())
+);
+
+
+const RenderComponentWrapper = () => {
+  return (
+    <>
+      <ToggleButtonsMultiple onChange={handleToggleChange} setSearchQuery={setSearchQuery} />
+      {renderComponent()}
+    </>
   );
+};
 
   const renderComponent = () => {
     switch (selectedComponent) {
@@ -98,15 +111,8 @@ function App() {
   return (
     <ThemeProvider theme={lightTheme}>
       <CssBaseline />
-      <div>
-        <ToggleButtonsMultiple onChange={handleToggleChange} setSearchQuery={setSearchQuery}/>
-        {/* <TextField
-          id="search"
-          label="Search Logger"
-          variant="outlined"
-          value={searchQuery}
-          onChange={handleSearchChange}
-        /> */}
+      
+      <div className='App'>
         <Box
           display="flex"
           flexWrap="wrap"
@@ -116,9 +122,21 @@ function App() {
           p={1}
           sx={{ boxSizing: 'border-box',  height: '100%', width: '100vw', maxWidth: '100%' }}
         >
-          {renderComponent()}
+          <Router>
+            <AuthProvider>
+              
+              <Routes>
+                <Route path='/login' element={<Login />} />
+                <Route element={<PrivateRoute />}>
+                  <Route path='/' element={<RenderComponentWrapper />} />
+                </Route>
+              </Routes>  
+            </AuthProvider>
+          </Router>
         </Box>
       </div>
+      
+      
     </ThemeProvider>
   );
 }
