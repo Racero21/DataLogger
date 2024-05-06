@@ -78,6 +78,37 @@ app.get('/api/latest_logs', (req, res) => {
     })
 })
 
+app.post('/auth/login', (req, res) => {
+    const { username, password } = req.body;
+
+    // Query database to validate user credentials
+    const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
+    pool.query(query, [username, password], (error, results) => {
+        if (error) {
+            return res.status(500).json({ error: `Failed to authenticate: ${error.message}` });
+        }
+
+        if (results.length === 0) {
+            return res.status(401).json({ error: 'Invalid username or password' });
+        }
+
+        // Assuming you have a column named 'token' in your users table
+        const token = results[0].token;
+
+        // Return user data and token
+        res.json({
+            data: {
+                user: {
+                    id: results[0].id,
+                    username: results[0].username,
+                    email: results[0].email,
+                },
+                token: token,
+            },
+        });
+    });
+});
+
 // Start the server on port 3001
 app.listen(process.env.DB_PORT, () => {
     console.log(`Server is running on http://${process.env.DB_HOST}:${process.env.DB_PORT}`);
