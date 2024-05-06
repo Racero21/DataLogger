@@ -32,32 +32,12 @@ app.get('/api/logger', (req, res) => {
     });
 });
 
-app.get('/api/timelogger', (req, res) => {
-    const query = 'SELECT LogTime, AverageVoltage FROM flowmeter_log ORDER BY LogTime ASC';
-    pool.query(query, (error, results) => {
-        if(error) {
-            return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
-        }
-        res.json(results)
-    });
-});
-
-app.get('/api/maplogger', (req, res) => {
-    const query = 'SELECT LoggerId, Name, Latitude, Longitude FROM datalogger ORDER BY Name ASC';
-    pool.query(query, (error, results) => {
-        if(error) {
-            return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
-        }
-        res.json(results)
-    });
-});
-
-app.get('/api/flowmeter_log/:id?', (req, res) => {
+app.get('/api/flow_log/:id?', (req, res) => {
     const LoggerId = req.params.id;
-    let query = 'SELECT * FROM flowmeter_log ORDER BY LoggerId, LogTime ASC';
+    let query = 'SELECT * FROM flow_log ORDER BY LoggerId, LogTime ASC';
 
     if (LoggerId) {
-        query = 'SELECT * FROM flowmeter_log WHERE LoggerId = ? ORDER BY LogTime ASC'
+        query = 'SELECT * FROM flow_log WHERE LoggerId = ? ORDER BY LogTime ASC'
     }
     console.log(query)
     pool.query(query, LoggerId ? [LoggerId] : [], (error, results) => {
@@ -68,13 +48,62 @@ app.get('/api/flowmeter_log/:id?', (req, res) => {
     });
 });
 
-app.get('/api/latest_logs', (req, res) => {
-    let query = 'SELECT * FROM latest_logs'
+// app.get('/api/latest_log', (req, res) => {
+//     let query = 'SELECT * FROM latest_log'
+//     pool.query(query, (error, results) => {
+//         if(error){
+//             return res.status(500).json({error: `Failed to fetch data: ${error.message}`})
+//         }
+//         res.json(results)
+//     })
+// })
+
+app.get('/api/latest_log/flow/:id?', (req, res) => {
+    let query = 'SELECT * FROM latest_flow_log'
+    // console.log(req.params.id)
+    if(req.params.id) query += ' WHERE LoggerId = ' + req.params.id
     pool.query(query, (error, results) => {
         if(error){
             return res.status(500).json({error: `Failed to fetch data: ${error.message}`})
         }
         res.json(results)
+    })
+})
+
+app.get('/api/latest_log/pressure/:id?', (req, res) => {
+    let query = 'SELECT * FROM latest_pressure_log'
+    if(req.params.id) query += ' WHERE LoggerId = ' + req.params.id
+    console.log(query)
+    pool.query(query, (error, results) => {
+        if(error){
+            return res.status(500).json({error: `Failed to fetch data: ${error.message}`})
+        }
+        res.json(results)
+    })
+})
+
+app.patch('/api/logger_limits/:id', (req, res) => {
+    // let query = 'SELECT * FROM latest_log'
+    const LoggerId = req.params.id
+    const VoltageLimit = req.body.VoltageLimit
+    const FlowLimit = req.body.FlowLimit
+    const PressureLimit = req.body.PressureLimit
+
+    let query = "UPDATE datalogger SET"
+    if(VoltageLimit) query += ` VoltageLimit = "${VoltageLimit}",`
+    if(FlowLimit) query += ` FlowLimit = "${FlowLimit}",`
+    if(PressureLimit) query += ` PressureLimit = "${PressureLimit}"`
+    query = query[-1] == ',' ? query.slice(0,-1) : query
+    query += ` WHERE LoggerId = ${LoggerId}`
+    console.log(query)
+
+    pool.query(query, (error, results) => {
+        if(error){
+            return res.status(500).json({error: `Failed to fetch data: ${error.message}`})
+        }
+        res.json(results)
+        console.log(`Logger ${LoggerId} limits changed! (${VoltageLimit} - ${FlowLimit} - ${PressureLimit})`)
+        console.log(query)
     })
 })
 

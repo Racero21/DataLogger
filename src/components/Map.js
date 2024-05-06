@@ -40,11 +40,16 @@ function MyMap() {
       (async () => {
         try {
             const loggerResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger`);
-            const logResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/latest_logs`);
+            const logResponseFlow = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/latest_log/flow`);
+            const logResponsePres = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/latest_log/pressure`);
+            const tempLogData = logResponseFlow.data.concat(logResponsePres.data);
+            const logData = new Map();
+            tempLogData.forEach((element,index)=> {
+              logData.set(element.LoggerId, element)
+              console.log(logData)
+            });
             setLoggerData(loggerResponse.data)
-            setLogData(logResponse.data)
-            // console.log('loggerdata'+loggerData)
-            // console.log('loggerdata'+logData)
+            setLogData(logData)
         } catch(e){
           setError('Error fetching data: ' + e.message);
         }
@@ -56,11 +61,17 @@ function MyMap() {
     let count = 0
     let dataTimeout = null;
     const fetchData = async() => {
-      const logResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/latest_logs`)
-        .catch( (error) => {
-        console.log(error.toJSON)
-    })
-      setLogData(logResponse.data)
+      const logResponseFlow = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/latest_log/flow`).catch((error) => console.log(error.toJSON));
+      const logResponsePres = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/latest_log/pressure`).catch((error) => console.log(error.toJSON));
+      const tempLogData = logResponseFlow.data.concat(logResponsePres.data);
+      const logData = new Map();
+      tempLogData.forEach((element,index)=> {
+        logData.set(element.LoggerId, element)
+        console.log(logData)
+      });
+      // const logResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/latest_log/flow`)
+      //   .catch((error) => console.log(error.toJSON))
+      setLogData(logData)
       count += 1
       console.log('count',count)
       dataTimeout = setTimeout(fetchData, pollInterval)
@@ -91,8 +102,9 @@ function MyMap() {
           <Tooltip sticky permanent direction='top' offset={[0,-10]}>
             <div key={index}>
               <strong>
-              💧 {logData[index].CurrentFlow} <em>m³/h</em><br></br>
-              ⚡ {logData[index].AverageVoltage} <em>V</em>
+              💧 {logData?.get(item.LoggerId)?.CurrentFlow} <em>m³/h</em><br></br>
+              🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br>
+              ⚡ {logData?.get(item.LoggerId)?.AverageVoltage} <em>V</em><br></br>
               </strong>
             </div>
           </Tooltip>
