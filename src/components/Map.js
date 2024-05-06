@@ -102,9 +102,9 @@ function MyMap() {
           <Tooltip sticky permanent direction='top' offset={[0,-10]}>
             <div key={index}>
               <strong>
-              💧 {logData?.get(item.LoggerId)?.CurrentFlow} <em>m³/h</em><br></br>
-              🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br>
-              ⚡ {logData?.get(item.LoggerId)?.AverageVoltage} <em>V</em><br></br>
+              {logData?.get(item.LoggerId)?.CurrentPressure? <> 🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br> </>:''}
+              {logData?.get(item.LoggerId)?.CurrentFlow? <> 💧 {logData?.get(item.LoggerId)?.CurrentFlow} <em>m³/h</em><br></br> </>:''}
+              {logData?.get(item.LoggerId)?.AverageVoltage? <> ⚡ {logData?.get(item.LoggerId)?.AverageVoltage} <em>V</em><br></br> </>:''}
               </strong>
             </div>
           </Tooltip>
