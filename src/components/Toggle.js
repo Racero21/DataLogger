@@ -12,8 +12,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { AppBar } from '@mui/material';
 import TextField from '@mui/material/TextField';
+import { useAuth } from '../auth/AuthProvider';
 
 export default function ToggleButtonsMultiple({ onChange, setSearchQuery }) {
+  const auth = useAuth();
+  
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
@@ -58,7 +61,7 @@ export default function ToggleButtonsMultiple({ onChange, setSearchQuery }) {
             Config
           </Button>
           </Typography>
-          <Button color="inherit" onClick={() => onChange(null, 'settings')}><SettingsIcon />Settings</Button>
+          <Button color="inherit" onClick={() => auth.logOut()}><SettingsIcon />Logout</Button>
         </Toolbar>
       </AppBar>
     </Box>
