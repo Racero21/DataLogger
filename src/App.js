@@ -12,6 +12,7 @@ import Login from './Login';
 import AuthProvider from './auth/AuthProvider';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import PrivateRoute from './route/PrivateRoute';
+import AddUser from './components/AddUser';
 
 function App() {
   const [data, setData] = useState([]);
@@ -25,7 +26,7 @@ function App() {
   };
 
   const filteredData = data.filter((item) =>
-    item.LoggerId.toLowerCase().includes(searchQuery.toLowerCase()) || item.Name.toLowerCase().includes(searchQuery.toLowerCase())
+    String(item.LoggerId).toLowerCase().includes(searchQuery.toLowerCase()) || item.Name.toLowerCase().includes(searchQuery.toLowerCase())
 );
 
 
@@ -50,7 +51,7 @@ const RenderComponentWrapper = () => {
               borderRadius: '20px',
             }}
           >
-            {item.Name.toLowerCase().includes('pressure') ? <Pressure id={item.LoggerId} />: <Chart id={item.LoggerId} name={item.Name} />}
+            {String(item.Name).toLowerCase().includes('pressure') ? <Pressure id={item.LoggerId} />: <Chart id={item.LoggerId} name={item.Name} />}
             {/* <Chart id={item.LoggerId} /> */}
           </Box>
         ));
@@ -64,8 +65,10 @@ const RenderComponentWrapper = () => {
         );
       case 'config':
         return <Logger />;
+      case 'add':
+        return <AddUser />
       default:
-        return <Login />;
+        return <MyMap/>;
     }
   };
 

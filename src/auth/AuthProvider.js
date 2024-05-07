@@ -21,13 +21,15 @@ const AuthProvider = ({ children }) => {
         setUser(res.data.user);
         console.log(res.data.user)
         setToken(res.data.token);
-        console.log(res.token)
-        localStorage.setItem("site", res.token);
+        console.log(res.data.token)
+        localStorage.setItem("site", res.data.token);
+        localStorage.setItem("user", res.data.user.username)
         navigate('/');
         return;
       }
-      throw new Error(res.message);
+      throw new Error("Invalid username or password");
     } catch (err) {
+      alert(err)
       console.error(err);
     }
   };

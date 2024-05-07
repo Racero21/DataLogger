@@ -15,8 +15,9 @@ import TextField from '@mui/material/TextField';
 import { useAuth } from '../auth/AuthProvider';
 
 export default function ToggleButtonsMultiple({ onChange, setSearchQuery }) {
-  const auth = useAuth();
-  
+  const auth= useAuth();
+  const currentUser = localStorage.getItem("user");
+  console.log(currentUser.toString())
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
@@ -61,6 +62,7 @@ export default function ToggleButtonsMultiple({ onChange, setSearchQuery }) {
             Config
           </Button>
           </Typography>
+          {currentUser === "admin" ? <Button color='inherit' onClick={() => onChange(null, 'add')}>Create User</Button> : ''}
           <Button color="inherit" onClick={() => auth.logOut()}><SettingsIcon />Logout</Button>
         </Toolbar>
       </AppBar>
