@@ -9,8 +9,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { Modal, Box, TextField, Typography } from '@mui/material';
-
 const pollInterval = 1000
 
 function Logger() {
@@ -42,8 +40,10 @@ function Logger() {
                         <TableCell align="center" sx={{fontWeight:'bold'}}>LoggerId</TableCell>
                         <TableCell align="center" sx={{fontWeight:'bold'}}>Name&nbsp;</TableCell>
                         <TableCell align="center" sx={{fontWeight:'bold'}}>Model&nbsp;</TableCell>
-                        <TableCell align="center" sx={{fontWeight:'bold'}}>Voltage Limit&nbsp;(V)</TableCell>
-                        <TableCell align="center" sx={{fontWeight:'bold'}}>Flow Limit&nbsp;(L/s)</TableCell>
+                        <TableCell align="center" sx={{fontWeight:'bold'}}>Type&nbsp;</TableCell>
+                        <TableCell align="center" sx={{fontWeight:'bold'}}>Voltage Limit&nbsp;(<em>V</em>)</TableCell>
+                        <TableCell align="center" sx={{fontWeight:'bold'}}>Flow Limit&nbsp;(<em>L/s</em>)</TableCell>
+                        <TableCell align="center" sx={{fontWeight:'bold'}}>Pressure Limit&nbsp;(<em>psi</em>)</TableCell>
                         <TableCell align="center" sx={{fontWeight:'bold'}}></TableCell>
                     </TableRow>
                     </TableHead>
@@ -51,66 +51,26 @@ function Logger() {
                     {loggers.map((row) => (
                         <TableRow
                         key={row.Name}
-                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        sx={{ '&:last-child td, &:last-child th': { border: 0 }}}
+                        hover='true'
                         >
-                        <TableCell align="right">{row.LoggerId}</TableCell>
-                        <TableCell align="right">{row.Name}</TableCell>
-                        <TableCell align="right">{row.Model}</TableCell>
-                        <TableCell align="right">{row.VoltageLimit}</TableCell>
-                        <TableCell align="right">{row.FlowLimit}</TableCell>
+                        <TableCell align="left">{row.LoggerId}</TableCell>
+                        <TableCell align="left"><strong>{row.Name.split('_').at(-1).replace('-',' ')}</strong></TableCell>
+                        <TableCell align="left">{row.Model}</TableCell>
+                        <TableCell align="left">{row.Name.split('_').at(-2)}</TableCell>
+                        <TableCell align="right">{row.VoltageLimit?.split(',')[0]} - {row.VoltageLimit.split(',')[1]}</TableCell>
+                        <TableCell align="right">{row.FlowLimit ? <> {row.FlowLimit.split(',')[0]} - {row.FlowLimit.split(',')[1]}</>
+                                                                : (row.Name.toLowerCase().includes("flow") ? <strong>Not Set</strong>: <div style={{color:'#4444'}}>N/A</div>)}
+                                                                </TableCell>
+                        <TableCell align="right">{row.PressureLimit ? <> {row.PressureLimit.split(',')[0]} - {row.PressureLimit.split(',')[1]} </>
+                                                                : (row.Name.toLowerCase().includes("pressure") ? <strong>Not Set</strong>: <div style={{color:'#4444'}}>N/A</div>)}
+                                                                </TableCell>
                         <TableCell align="right"><Edit pack={row} /></TableCell>
                         </TableRow>
                     ))}
                     </TableBody>
                 </Table>
             </TableContainer>
-            {/* {loggers.map((item, index) => (
-                    // console.log(item),
-                    <Edit pack={item}/>
-                    // <li key={index}>
-                    // <div>
-                    //     LoggerId: {item.LoggerId} | Name: {item.Name} | Model: {item.Model} | Voltage Limit: {item.VoltageLimit} | Flow Limit: {item.FlowLimit} <button onClick={handleOpen}>edit</button>
-                    //     <Modal
-                    //         open={open}
-                    //         onClose={handleClose}
-                    //         sx={{display:'flex', justifyContent: 'center'}}
-                    //     >
-                    //         <Box
-                    //             sx={{display:'flex', flexDirection:'column', backgroundColor:'white', height:'fit-content', width:'fit-content', margin:'auto', padding:'20px'}}
-                    //         >
-                    //         <Typography variant='h5'>
-                    //             {item.Name}
-                    //         </Typography>
-                    //         <TextField
-                    //             label='Minimum Voltage'
-                    //             placeholder={item.VoltageLimit}
-                    //         />
-                    //         <TextField
-                    //             label='Maximum Voltage'
-                    //             placeholder={item.VoltageLimit}
-                    //         />
-                    //         <TextField
-                    //             label='Minimum Flow'
-                    //             placeholder={item.VoltageLimit}
-                    //         />
-                    //         <TextField
-                    //             label='Maximum Flow'
-                    //             placeholder={item.VoltageLimit}
-                    //         />
-                            
-                    //         <button>apply</button>
-                    //         </Box>
-                    //     </Modal>
-                    // </div>
-                        
-                    // </li>
-                )
-                )} */}
-            {/* <ol>
-                {loggers.map((index, logger) => (
-                    <li key={index}>{logger.LoggerId}</li>
-                ))}
-            </ol> */}
         </div>
     );
 }

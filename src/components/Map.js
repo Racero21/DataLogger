@@ -11,7 +11,8 @@ import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
 const markerIcon = new Icon({
   iconUrl:require("../img/meter.png"),
-  iconSize:[30,30]
+  iconSize:[30,30],
+  // className:'blinking'
 });
 
 const pollInterval = 5000
