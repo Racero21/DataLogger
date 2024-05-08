@@ -8,7 +8,6 @@ import Box from '@mui/material/Box';
 import Fab from '@mui/material/Fab';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
-
 const markerIcon = new Icon({
   iconUrl:require("../img/meter.png"),
   iconSize:[30,30],
@@ -16,6 +15,10 @@ const markerIcon = new Icon({
 });
 
 const pollInterval = 5000
+
+function lerp(min, max, val){
+  return Math.max(0,Math.round(((val-min)/(max-min))*100))
+}
 
 function MyMap() {
   const [loggerData, setLoggerData] = useState([]);
@@ -100,7 +103,8 @@ function MyMap() {
               <strong>
               {logData?.get(item.LoggerId)?.CurrentPressure? <> 🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br> </>:''}
               {logData?.get(item.LoggerId)?.CurrentFlow? <> 💧 {logData?.get(item.LoggerId)?.CurrentFlow} <em>lps</em><br></br> </>:''}
-              {logData?.get(item.LoggerId)?.AverageVoltage? <> ⚡ {logData?.get(item.LoggerId)?.AverageVoltage} <em>V</em><br></br> </>:''}
+              {logData?.get(item.LoggerId)?.AverageVoltage? <> ⚡ {logData?.get(item.LoggerId)?.AverageVoltage} <em>V</em> </>:''} 
+              {logData?.get(item.LoggerId)?.AverageVoltage? <> 🔋 {lerp(2.8,3.4,logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </>:''}
               </strong>
             </div>
           </Tooltip>
