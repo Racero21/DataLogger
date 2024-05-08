@@ -5,12 +5,17 @@ import 'chart.js/auto'; // Import chart.js to automatically register all chart t
 import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
 import 'chartjs-adapter-date-fns';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { format, parseISO, addHours, subHours, sub } from 'date-fns';
-import '../Chart.css'
-import Modal from '@mui/material/Modal'
+import '../Chart.css';
+import { Chart } from 'chart.js';
+import Modal from '@mui/material/Modal';
 import { Box } from '@mui/material';
 
-function Chart({ id }) {
+
+
+function Charts({ id }) {
+    Chart.register(zoomPlugin);
     const [datac, setCData] = useState(null);
     const [copy, setCopy] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -175,7 +180,18 @@ function Chart({ id }) {
             }
           },
         },
-        plugins: {      
+        plugins: {
+          zoom: {
+            zoom: {
+              wheel: {
+                enabled: true,
+              },
+              pinch: {
+                enabled: true
+              },
+              mode: 'xy',
+            }
+          },      
             title: {
                 font: {
                     size: 20,
@@ -476,4 +492,4 @@ function Chart({ id }) {
     );
 }
 
-export default Chart;
+export default Charts;
