@@ -171,8 +171,11 @@ function Chart({ id }) {
           x: {
             type: 'time',
             time: {
-              unit: 'minute',
-            }
+              displayFormats:{
+                hour: 'MM/d H:00'
+              }
+              // unit: 'hour',
+            },
           },
         },
         plugins: {      
