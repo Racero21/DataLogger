@@ -73,8 +73,9 @@ function Pressure({ id }) {
     useEffect(() => {
         
         const fetchData = async () => {
+            console.log(id)
             try {
-                const response = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/flow_log/`+id);
+                const response = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/pressure_log/`+id);
                 const name = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger`)
                 
                 const names = name.data;
@@ -107,7 +108,7 @@ function Pressure({ id }) {
                     datasets: [
                         {
                             label: 'Average Voltage',
-                            // data: data.map(item => item.AverageVoltage),
+                            data: data.map(item => item.AverageVoltage),
                             borderColor: borderColor.voltage,
                             // backgroundColor: 'brown',
                             // backgroundColor: '#FAFAFA', // Light Grey
@@ -117,8 +118,8 @@ function Pressure({ id }) {
                             hidden: false,
                         },
                         {
-                            label: 'Current Flow',
-                            // data: data.map(item => item.CurrentFlow),
+                            label: 'Current Pressure',
+                            data: data.map(item => item.CurrentPressure),
                             borderColor: borderColor.flow,
                             fill: true,
                             hidden: false,
@@ -143,11 +144,8 @@ function Pressure({ id }) {
         switch (label) {
             case 'Average Voltage':
                 return 'V';
-            case 'Current Flow':
+            case 'Current Pressure':
                 return 'm3/h';
-            case 'Flow Positive':
-            case 'Flow Negative':
-                return 'Liters';
             default: 
                 return '';
         }
@@ -165,7 +163,18 @@ function Pressure({ id }) {
             }
           },
         },
-        plugins: {      
+        plugins: { 
+          zoom: {
+            zoom: {
+              wheel: {
+                enabled: true,
+              },
+              pinch: {
+                enabled: true
+              },
+              mode: 'xy',
+            }
+          },       
             title: {
                 font: {
                     size: 20,
@@ -246,12 +255,12 @@ function Pressure({ id }) {
           Voltage
         </Typography>
         <Typography color="textSecondary">
-          {/* {latest.AverageVoltage} Volts */}
+          {latest.AverageVoltage} Volts
         </Typography>
         </Grid>
         <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
           <GaugeChart id="gauge-chart" 
-        //   percent={latest.AverageVoltage/10} 
+          percent={latest.AverageVoltage/10} 
           cornerRadius={0.2}
           arcWidth={0.4}
           // nrOfLevels={420}
@@ -275,15 +284,15 @@ function Pressure({ id }) {
       <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
       <Grid item container direction={'column'}>
         <Typography variant="h5" component="h2">
-          Voltage
+          Current Pressure
         </Typography>
         <Typography color="textSecondary">
-        {/* {latest.CurrentFlow} m3/h */}
+        {latest.CurrentPressure} m3/h
         </Typography>
       </Grid>
       <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
           <GaugeChart id="gauge-chart" 
-        //   percent={latest.CurrentFlow/600} 
+          percent={latest.CurrentPressure/600} 
           cornerRadius={0.2}
           arcWidth={0.4}
           // nrOfLevels={420}
@@ -310,7 +319,7 @@ function Pressure({ id }) {
       </Typography>
       <Grid container spacing={2} onClick={handleOpen} sx={{paddingTop: '10px', display: 'inline-flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center'}}>
         {/* First Card */}
-        <Grid item xs={6} >
+        <Grid item xs={8} >
           <Card className='card'  onHover={() => handleCardClick('Average Voltage')} onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}`}}>
             <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
               <Grid item container direction={'column'}>
@@ -318,12 +327,12 @@ function Pressure({ id }) {
                 Voltage
               </Typography>
               <Typography color="textSecondary">
-                {/* {latest.AverageVoltage} Volts */}
+                {latest.AverageVoltage} Volts
               </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
                 <GaugeChart id="gauge-chart" 
-                // percent={latest.AverageVoltage/10} 
+                percent={latest.AverageVoltage/10} 
                 cornerRadius={0.2}
                 arcWidth={0.4}
                 // nrOfLevels={420}
@@ -342,20 +351,20 @@ function Pressure({ id }) {
         </Grid>
 
         {/* Second Card */}
-        <Grid item xs={6} sx={{display: 'flex', flexDirection: 'column'}}>
+        <Grid item xs={8} sx={{display: 'flex', flexDirection: 'column'}}>
           <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `5px solid ${borderColor.flow}`}}>
             <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
             <Grid item container direction={'column'}>
               <Typography variant="h5" component="h2">
-                Voltage
+                Current Pressure
               </Typography>
               <Typography color="textSecondary">
-              {/* {latest.CurrentFlow} m3/h */}
+              {latest.CurrentPressure} m3/h
               </Typography>
             </Grid>
             <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
                 <GaugeChart id="gauge-chart" 
-                // percent={latest.CurrentFlow/600} 
+                percent={latest.CurrentPressure/600} 
                 cornerRadius={0.2}
                 arcWidth={0.4}
                 // nrOfLevels={420}

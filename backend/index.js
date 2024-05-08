@@ -51,6 +51,22 @@ app.get('/api/flow_log/:id?', (req, res) => {
     });
 });
 
+app.get('/api/pressure_log/:id?', (req, res) => {
+    const LoggerId = req.params.id;
+    let query = 'SELECT * FROM pressure_log ORDER BY LoggerId, LogTime ASC';
+
+    if (LoggerId) {
+        query = 'SELECT * FROM pressure_log WHERE LoggerId = ? ORDER BY LogTime ASC'
+    }
+    console.log(query)
+    pool.query(query, LoggerId ? [LoggerId] : [], (error, results) => {
+        if(error) {
+            return res.status(500).json({error: `Failed to fetch data: ${error.message}`});
+        }
+        res.json(results)
+    });
+});
+
 app.get('/api/latest_log/flow/:id?', (req, res) => {
     let query = 'SELECT * FROM latest_flow_log'
     // console.log(req.params.id)

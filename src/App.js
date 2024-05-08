@@ -3,7 +3,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import axios from 'axios';
 import Logger from './components/Logger';
-import Chart from './components/Chart';
+import Charts from './components/Chart';
 import Pressure from './Pressure'
 import ToggleButtonsMultiple from './components/Toggle';
 import MyMap from './components/Map';
@@ -51,7 +51,7 @@ const RenderComponentWrapper = () => {
               borderRadius: '20px',
             }}
           >
-            {String(item.Name).toLowerCase().includes('pressure') ? <Pressure id={item.LoggerId} />: <Chart id={item.LoggerId} name={item.Name} />}
+            {String(item.Name).toLowerCase().includes('pressure') ? <Pressure id={item.LoggerId} name={item.Name}/>: <Charts id={item.LoggerId} name={item.Name} />}
             {/* <Chart id={item.LoggerId} /> */}
           </Box>
         ));
