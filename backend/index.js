@@ -3,7 +3,6 @@ const cors = require('cors');
 const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const { createHash } = require('crypto');
-const bcrypt =require('bcrypt');
 
 // Load secrets
 require('dotenv').config()
@@ -51,16 +50,6 @@ app.get('/api/flow_log/:id?', (req, res) => {
         res.json(results)
     });
 });
-
-// app.get('/api/latest_log', (req, res) => {
-//     let query = 'SELECT * FROM latest_log'
-//     pool.query(query, (error, results) => {
-//         if(error){
-//             return res.status(500).json({error: `Failed to fetch data: ${error.message}`})
-//         }
-//         res.json(results)
-//     })
-// })
 
 app.get('/api/latest_log/flow/:id?', (req, res) => {
     let query = 'SELECT * FROM latest_flow_log'
@@ -116,7 +105,7 @@ app.post('/auth/login', (req, res) => {
     const hash = createHash('sha256').update(password + salt).digest('hex');
     console.log("login:" + hash);
     // Query database to validate user credentials
-    const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
+    const query = 'SELECT * FROM user WHERE username = ? AND password = ?';
     pool.query(query, [username, hash], async (error, results) => {
         if (error) {
             return res.status(500).json({ error: `Failed to authenticate: ${error.message}` });
@@ -126,12 +115,7 @@ app.post('/auth/login', (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
-        // Assuming you have a column named 'token' in your users table
-        // const token = results[0].token;
-        // const token = jwt.sign(results[0].username, process.env.SECRET, {expiresIn: '1d'});
         const token = jwt.sign({ username: results[0].username }, process.env.SECRET, { expiresIn: '1d' });
-
-        const passwordmatch = await bcrypt.compare(password, results[0].password);
 
         // Return user data and token
         res.json({
