@@ -17,7 +17,6 @@ import { useAuth } from '../auth/AuthProvider';
 export default function ToggleButtonsMultiple({ onChange, setSearchQuery }) {
   const auth= useAuth();
   const currentUser = localStorage.getItem("user");
-  console.log(currentUser.toString())
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };

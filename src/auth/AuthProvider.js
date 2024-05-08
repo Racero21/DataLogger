@@ -17,6 +17,7 @@ const AuthProvider = ({ children }) => {
         body: JSON.stringify(data),
       });
       const res = await response.json();
+      // SELECT * FROM `flow_log` WHERE LogTime >= DATE_SUB(CURTIME(), INTERVAL 1 HOUR);
       if (res.data) {
         setUser(res.data.user);
         console.log(res.data.user)

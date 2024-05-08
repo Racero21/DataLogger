@@ -4,13 +4,11 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
 import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
-import GaugeComponent from 'react-gauge-component';
 import 'chartjs-adapter-date-fns';
 import { format, parseISO, addHours, subHours, sub } from 'date-fns';
 import '../Chart.css'
 import Modal from '@mui/material/Modal'
 import { Box } from '@mui/material';
-import { yellow } from '@mui/material/colors';
 
 function Chart({ id }) {
     const [datac, setCData] = useState(null);
@@ -39,7 +37,7 @@ function Chart({ id }) {
 
     const filterDataByTimeRange = (data, timeRange) => {
       const currentTime = new Date();
-      let timeThreshold;
+      let timeThreshold = null;
 
       switch (timeRange) {
         case 'hour': 
@@ -57,18 +55,14 @@ function Chart({ id }) {
         default:
           timeThreshold = 0;
       }
-
-      return data.filter(item => item.LogTime >= timeThreshold);
+      return data.filter(item => item >= timeThreshold);
     }
 
     const parseTime = (data) => {
       return data.map(item => {
           // Parse datetime string to Date object
-          const datetime = parseISO(item.LogTime);
-          // Add 8 hours to adjust to UTC+8 timezone
-          const utcPlus8Datetime = subHours(datetime, 8);
-          // Format the datetime back to a string
-          return format(utcPlus8Datetime, "yyyy-MM-dd'T'HH:mm:ss");
+          const datetime = item.LogTime.slice(0,-1);
+          return new Date(datetime);
         })
     }
     
@@ -94,18 +88,18 @@ function Chart({ id }) {
                 const lastElement = data[data.length - 1];
                 
                 const parsed = parseTime(data);
-                const filtered = filterDataByTimeRange(parsed)
+                const filtered = filterDataByTimeRange(parsed, selectedTimeFrame)
 
                 setLatest(lastElement);
                 console.log(selectedTimeFrame)
                 console.log(filtered)
                 console.log(data)
+                console.log(parsed)
                 console.log(latest);
+                
                 // Process the data from the response and create the data object for the chart
                 const transformedData = {
-                    // labels: data.map(item => item.LogTime),
-                    labels: parsed,
-                    // labels: filterDataByTimeRange(parsed, selectedTimeFrame),
+                    labels: filtered,
                     datasets: [
                         {
                             label: 'Average Voltage',
@@ -154,7 +148,7 @@ function Chart({ id }) {
 
         fetchData();
         // console.log(datac)
-    }, [id, selectedTimeFrame, borderColor.flow, borderColor.negative, borderColor.positive, borderColor.voltage]);
+    }, [id, selectedTimeFrame]);
     function getUnitofMeasurement(label) {
         switch (label) {
             case 'Average Voltage':
