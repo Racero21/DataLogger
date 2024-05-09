@@ -72,6 +72,11 @@ function MyMap() {
     dataTimeout = setTimeout(fetchData, pollInterval)
     return () => clearTimeout(dataTimeout)
   },[])
+
+  useEffect(() => {
+    const iconElements = document.querySelectorAll('.blinking');
+    
+  })
   
   return (
     <>
@@ -101,7 +106,7 @@ function MyMap() {
           <Tooltip sticky permanent direction='top' offset={[0,-10]}>
             <div key={index} style={{'textAlign':'center'}}>
               <strong>
-              {logData?.get(item.LoggerId)?.CurrentPressure? <> 🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br> </>:''}
+              {logData?.get(item.LoggerId)?.CurrentPressure?  <>{logData?.get(item.LoggerId)?.CurrentPressure < 10 ? <span className='blinking'>🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></span>: <>🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></>}</>  :''}
               {logData?.get(item.LoggerId)?.CurrentFlow? <> 💧 {logData?.get(item.LoggerId)?.CurrentFlow} <em>lps</em><br></br> </>:''}
               {logData?.get(item.LoggerId)?.AverageVoltage? <> ⚡ {logData?.get(item.LoggerId)?.AverageVoltage} <em>V</em> </>:''} 
               {logData?.get(item.LoggerId)?.AverageVoltage? <> 🔋 {lerp(2.8,3.4,logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </>:''}

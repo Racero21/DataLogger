@@ -34,10 +34,19 @@
     -webkit-text-stroke: 0.25px rgb(49, 49, 49);
     text-shadow: 2px 2px rgb(0, 0, 0);
 }
-@keyframes fade { 
-    from { opacity: 0.5; } 
-  }
-  
+
 .blinking {
-    animation: fade 1s infinite alternate;
+    animation: blink 1s infinite alternate;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
