@@ -388,7 +388,7 @@ function Charts({ id }) {
       <Grid container spacing={2} onClick={handleOpen} sx={{paddingTop: '10px'}}>
         {/* First Card */}
         <Grid item xs={6} >
-          <Card className='card'  onHover={() => handleCardClick('Average Voltage')} onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}`}}>
+          <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}`}}>
             <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
               <Grid item container direction={'column'}>
               <Typography variant="h5" component="h2">
