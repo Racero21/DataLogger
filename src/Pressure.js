@@ -37,7 +37,7 @@ function Pressure({ id }) {
 
     const filterDataByTimeRange = (data, timeRange) => {
       const currentTime = new Date();
-      let timeThreshold;
+      let timeThreshold = null;
 
       switch (timeRange) {
         case 'hour': 
@@ -55,18 +55,23 @@ function Pressure({ id }) {
         default:
           timeThreshold = 0;
       }
-
-      return data.filter(item => item.LogTime >= timeThreshold);
+      data.map((item) => {
+        console.log(item, timeThreshold, timeRange)
+      })
+      return data.filter(item => item >= timeThreshold);
     }
 
     const parseTime = (data) => {
       return data.map(item => {
           // Parse datetime string to Date object
-          const datetime = parseISO(item.LogTime);
-          // Add 8 hours to adjust to UTC+8 timezone
-          const utcPlus8Datetime = subHours(datetime, 8);
-          // Format the datetime back to a string
-          return format(utcPlus8Datetime, "yyyy-MM-dd'T'HH:mm:ss");
+          // const datetime = parseISO(item.LogTime);
+          // // Add 8 hours to adjust to UTC+8 timezone
+          // const utcPlus8Datetime = subHours(datetime, 8);
+          // // Format the datetime back to a string
+          // return format(utcPlus8Datetime, "yyyy-MM-dd'T'HH:mm:ss");
+          
+          const datetime = item.LogTime.slice(0,-1);
+          return new Date(datetime);
         })
     }
     
@@ -93,7 +98,7 @@ function Pressure({ id }) {
                 const lastElement = data[data.length - 1];
                 
                 const parsed = parseTime(data);
-                const filtered = filterDataByTimeRange(parsed)
+                const filtered = filterDataByTimeRange(parsed, selectedTimeFrame)
 
                 setLatest(lastElement);
                 console.log(selectedTimeFrame)
@@ -103,7 +108,7 @@ function Pressure({ id }) {
                 // Process the data from the response and create the data object for the chart
                 const transformedData = {
                     // labels: data.map(item => item.LogTime),
-                    labels: parsed,
+                    labels: filtered,
                     // labels: filterDataByTimeRange(parsed, selectedTimeFrame),
                     datasets: [
                         {
@@ -159,7 +164,9 @@ function Pressure({ id }) {
           x: {
             type: 'time',
             time: {
-              unit: 'minute',
+              displayFormats:{
+                hour: 'MM/d H:00'
+              }
             }
           },
         },
@@ -280,7 +287,7 @@ function Pressure({ id }) {
 
   {/* Second Card */}
   <Grid item xs={5} sx={{display: 'flex', flexDirection: 'column'}}>
-    <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `5px solid ${borderColor.flow}`}}>
+    <Card className='card' onClick={() => handleCardClick('Current Pressure')} sx={{ border: `5px solid ${borderColor.flow}`}}>
       <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
       <Grid item container direction={'column'}>
         <Typography variant="h5" component="h2">
@@ -320,7 +327,7 @@ function Pressure({ id }) {
       <Grid container spacing={2} onClick={handleOpen} sx={{paddingTop: '10px', display: 'inline-flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center'}}>
         {/* First Card */}
         <Grid item xs={8} >
-          <Card className='card'  onHover={() => handleCardClick('Average Voltage')} onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}`}}>
+          <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}`}}>
             <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
               <Grid item container direction={'column'}>
               <Typography variant="h5" component="h2">
@@ -352,7 +359,7 @@ function Pressure({ id }) {
 
         {/* Second Card */}
         <Grid item xs={8} sx={{display: 'flex', flexDirection: 'column'}}>
-          <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `5px solid ${borderColor.flow}`}}>
+          <Card className='card' onClick={() => handleCardClick('Current Pressure')} sx={{ border: `5px solid ${borderColor.flow}`}}>
             <CardContent sx={{display: 'flex', flexDirection: 'row'}}>
             <Grid item container direction={'column'}>
               <Typography variant="h5" component="h2">
