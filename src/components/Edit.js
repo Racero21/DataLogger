@@ -3,7 +3,7 @@ import { Modal, Box, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 
 function Edit({ pack }) {
-    const [open, setOpen] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [data, setData] = useState({
         minVolt: "",
         maxVolt: "",
@@ -11,20 +11,23 @@ function Edit({ pack }) {
         maxFlow: "",
         minPress: "",
         maxPress: "",
-        VoltageLimit: "",
-        FlowLimit: "",
-        PressureLimit: "",
+        VoltageLimit: null,
+        FlowLimit: null,
+        PressureLimit: null,
     });
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const handleOpen = () => setOpenModal(true);
+    const handleClose = () => setOpenModal(false);
 
     const handleSubmit = async (id) => {
-        if (data.minVolt === "") {
-            data.minVolt = pack.VoltageLimit?.split(',')[0]
+        if (pack.VoltageLimit) {
+            if (data.minVolt === "") {
+                data.minVolt = pack.VoltageLimit.split(',')[0]
+            }
+            if (data.maxVolt === "") {
+                data.maxVolt = pack.VoltageLimit.split(',')[1]
+            }
         }
-        if (data.maxVolt === "") {
-            data.maxVolt = pack.VoltageLimit?.split(',')[1]
-        }
+
         if (data.minFlow === "" && pack.FlowLimit !== null) {
             data.minFlow = pack.FlowLimit?.split(',')[0]
         }
@@ -37,17 +40,32 @@ function Edit({ pack }) {
         if (data.maxPress === "" && pack.PressureLimit !== null) {
             data.maxPress = pack.PressureLimit?.split(',')[1]
         }
-
-        data.VoltageLimit = data.minVolt + ',' + data.maxVolt
-        if (pack.FlowLimit !== null) data.FlowLimit = data.minFlow + ',' + data.maxFlow
-        if (pack.PressureLimit!== null) data.PressureLimit = data.minPress + ',' + data.maxPress
-        
+        let change = false
+        const loggerType = pack.Name.toLowerCase().includes("flow") ? "flow" : "pressure"
+        if (data.minVolt != "" && data.maxVolt != "") {
+            change = true
+            data.VoltageLimit = data.minVolt + ',' + data.maxVolt
+        }
+        if (loggerType == "flow" && (data.minFlow != "" && data.maxFlow != "")) {
+            change = true
+            data.FlowLimit = data.minFlow + ',' + data.maxFlow
+        }
+        if (loggerType == "pressure" && (data.minPress != "" && data.maxPress != "")) {
+            change = true
+            data.PressureLimit = data.minPress + ',' + data.maxPress
+        }
+        if (!change) {
+            console.log("No Change")
+            return
+        }
+        console.log("Change")
         console.log(data)
-        console.log(pack.toString())
-        console.log(pack.LoggerId)
+        // console.log(pack)
+        // console.log(pack.LoggerId)
         const query = await axios.patch(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger_limits/` + pack.LoggerId, data)
         const response = query.data;
-        console.log(response.data)
+        console.log(response)
+        setOpenModal(false)
     }
     const handleInput = (e) => {
         const name = e.target.name;
@@ -65,8 +83,7 @@ function Edit({ pack }) {
                 {/* LoggerId: {pack.LoggerId} | Name: {pack.Name} | Model: {pack.Model} | Voltage Limit: {pack.VoltageLimit} | Flow Limit: {pack.FlowLimit}  */}
                 <button onClick={handleOpen} style={{ fontWeight: "bold" }}>Edit</button>
                 <Modal
-                    open={open}
-                    onClose={handleClose}
+                    open={openModal}
                     sx={{ display: 'flex', justifyContent: 'center' }}
                 >
                     <Box
@@ -79,58 +96,56 @@ function Edit({ pack }) {
                             {pack.Name.split('_').at(-2)} METER
                         </Typography>
                         <TextField
-                            name = 'minVolt'
+                            name='minVolt'
                             label='Minimum Voltage'
-                            placeholder={pack.VoltageLimit.split(',')[0]}
+                            placeholder={pack.VoltageLimit?.split(',')[0]}
                             onChange={handleInput}
                         />
                         <TextField
-                            name = 'maxVolt'
+                            name='maxVolt'
                             label='Maximum Voltage'
-                            placeholder={pack.VoltageLimit.split(',')[1]}
+                            placeholder={pack.VoltageLimit?.split(',')[1]}
                             onChange={handleInput}
                         />
                         {
                             pack.Name.toLowerCase().includes("flow") ?
                                 <>
                                     <TextField
-                                        name = 'minFlow'
+                                        name='minFlow'
                                         label='Minimum Flow'
                                         placeholder={pack.FlowLimit?.split(',')[0] ?? "Not Set"}
                                         onChange={handleInput}
                                     />
                                     <TextField
-                                        name = 'maxFlow'
+                                        name='maxFlow'
                                         label='Maximum Flow'
                                         placeholder={pack.FlowLimit?.split(',')[1] ?? "Not Set"}
                                         onChange={handleInput}
                                     />
                                 </>
-                                :
-                                ''
+                                : ''
                         }
                         {
                             pack.Name.toLowerCase().includes("pressure") ?
                                 <>
                                     <TextField
-                                        name = 'minPress'
+                                        name='minPress'
                                         label='Minimum Pressure'
                                         placeholder={pack.PressureLimit?.split(',')[0] ?? "Not Set"}
                                         onChange={handleInput}
                                     />
                                     <TextField
-                                        name = 'maxPress'
+                                        name='maxPress'
                                         label='Maximum Pressure'
                                         placeholder={pack.PressureLimit?.split(',')[1] ?? "Not Set"}
                                         onChange={handleInput}
                                     />
                                 </>
-                                :
-                                ''
+                                : ''
                         }
 
 
-                        <button onClick= {() => handleSubmit()}>Apply</button>
+                        <button onClick={() => handleSubmit()}>Apply</button>
                     </Box>
                 </Modal>
             </div>
