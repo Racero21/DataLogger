@@ -4,7 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import axios from 'axios';
 import Logger from './components/Logger';
 import Charts from './components/Chart';
-import Pressure from './Pressure'
+import Pressure from './components/Pressure'
 import ToggleButtonsMultiple from './components/Toggle';
 import MyMap from './components/Map';
 import { Box } from '@mui/material';

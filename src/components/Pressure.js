@@ -2,20 +2,15 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
-import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
+import { Grid, Card, CardContent, Typography } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
 import 'chartjs-adapter-date-fns';
-import zoomPlugin from 'chartjs-plugin-zoom';
 import { subHours } from 'date-fns';
-import '../Chart.css';
-import { Chart } from 'chart.js';
-import Modal from '@mui/material/Modal';
+import '../Chart.css'
+import Modal from '@mui/material/Modal'
 import { Box } from '@mui/material';
 
-
-
-function Charts({ id }) {
-  Chart.register(zoomPlugin);
+function Pressure({ id }) {
   const [datac, setCData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState([]);
@@ -34,7 +29,7 @@ function Charts({ id }) {
 
   const borderColor = {
     voltage: '#FFA726', // Electric Orange
-    flow: '#42A5F5',    // Water Blue
+    pressure: '#00a2ed',    // Microsoft Blue
     positive: '#4CAF50', // Fresh Green
     negative: '#FF7043', // Rusty Red
   };
@@ -78,8 +73,9 @@ function Charts({ id }) {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log(id)
       try {
-        const response = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/flow_log/` + id);
+        const response = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/pressure_log/` + id);
         const name = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger`)
 
         const names = name.data;
@@ -100,16 +96,17 @@ function Charts({ id }) {
         const filtered = filterDataByTimeRange(data, selectedTimeFrame)
 
         setLatest(lastElement);
-        // console.log('Threshold' + selectedTimeFrame)
+        // console.log(selectedTimeFrame)
         console.log(filtered)
         console.log(`${Object.keys(data).length} filtered down to ${Object.keys(filtered).length}`)
         // console.log(data)
-        // console.log(parsed)
-        console.log(latest);
-
+        // console.log(latest);
         // Process the data from the response and create the data object for the chart
         const transformedData = {
+          // labels: data.map(item => item.LogTime),
+          // labels: filtered.map(item => parseTime(item.LogTime)),
           labels: filtered.map(item => parseTime(item.LogTime)),
+          // labels: filterDataByTimeRange(parsed, selectedTimeFrame),
           datasets: [
             {
               label: 'Average Voltage',
@@ -122,23 +119,9 @@ function Charts({ id }) {
               hidden: false,
             },
             {
-              label: 'Current Flow',
-              data: filtered.map(item => item.CurrentFlow),
-              borderColor: borderColor.flow,
-              fill: true,
-              hidden: false,
-            },
-            {
-              label: 'Flow Positive',
-              data: filtered.map(item => item.TotalFlowPositive),
-              borderColor: borderColor.positive,
-              fill: true,
-              hidden: false,
-            },
-            {
-              label: 'Flow Negative',
-              data: filtered.map(item => item.TotalFlowNegative),
-              borderColor: borderColor.negative,
+              label: 'Current Pressure',
+              data: filtered.map(item => item.CurrentPressure),
+              borderColor: borderColor.pressure,
               fill: true,
               hidden: false,
             },
@@ -156,16 +139,13 @@ function Charts({ id }) {
 
     fetchData();
     // console.log(datac)
-  }, [id, selectedTimeFrame]);
+  }, [id, selectedTimeFrame, borderColor.pressure, borderColor.negative, borderColor.positive, borderColor.voltage]);
   function getUnitofMeasurement(label) {
     switch (label) {
       case 'Average Voltage':
         return 'V';
-      case 'Current Flow':
+      case 'Current Pressure':
         return 'm3/h';
-      case 'Flow Positive':
-      case 'Flow Negative':
-        return 'Liters';
       default:
         return '';
     }
@@ -182,8 +162,7 @@ function Charts({ id }) {
           displayFormats: {
             hour: 'MM/d H:00'
           }
-          // unit: 'hour',
-        },
+        }
       },
     },
     plugins: {
@@ -208,13 +187,6 @@ function Charts({ id }) {
         display: true,
         text: 'Time Series Data of ' + info,
       },
-      // subtitle: {
-      //   display: true,
-      //   text: 'LoggerID: ' + id,
-      //   padding: {
-      //     bottom: 10
-      //   }
-      // },
       legend: {
         display: false,
       },
@@ -282,7 +254,7 @@ function Charts({ id }) {
         <Line data={datac} options={options} />
         <Grid container spacing={2} onClick={handleOpen}>
           {/* First Card */}
-          <Grid item xs={4}>
+          <Grid item xs={5}>
             <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
               <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Grid item container direction={'column'}>
@@ -314,20 +286,20 @@ function Charts({ id }) {
           </Grid>
 
           {/* Second Card */}
-          <Grid item xs={4} sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `5px solid ${borderColor.flow}` }}>
+          <Grid item xs={5} sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Card className='card' onClick={() => handleCardClick('Current Pressure')} sx={{ border: `5px solid ${borderColor.pressure}` }}>
               <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Grid item container direction={'column'}>
                   <Typography variant="h5" component="h2">
-                    Flow
+                    Current Pressure
                   </Typography>
                   <Typography color="textSecondary">
-                    {latest.CurrentFlow} m3/h
+                    {latest.CurrentPressure} m3/h
                   </Typography>
                 </Grid>
                 <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
                   <GaugeChart id="gauge-chart"
-                    percent={latest.CurrentFlow / 600}
+                    percent={latest.CurrentPressure / 600}
                     cornerRadius={0.2}
                     arcWidth={0.4}
                     // nrOfLevels={420}
@@ -345,57 +317,16 @@ function Charts({ id }) {
             </Card>
           </Grid>
 
-          {/* Third Card */}
-          <Grid item xs={2}>
-            <Card className='card' onClick={() => handleCardClick('Flow Positive')} sx={{ border: `5px solid ${borderColor.positive}` }}>
-              <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
-                <Grid container spacing={2}>
-                  {/* <Grid item>
-            GAUGE
-          </Grid>  */}
-                  <Grid item xs={12} sm container>
-                    <Grid item xs container direction={"column"} spacing={2}>
-                      <Grid item xs>
-                        <Typography variant="h5" component="h2">
-                          Positive
-                        </Typography>
-                        <Typography color={"textSecondary"}>
-                          {latest.TotalFlowPositive} L
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Fourth Card */}
-          <Grid item xs={2}>
-            <Card className='card' onClick={() => handleCardClick('Flow Negative')} sx={{ border: `5px solid ${borderColor.negative}` }}>
-              <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
-                <Grid item container direction={'column'}>
-                  <Typography variant="h5" component="h2">
-                    Negative
-                  </Typography>
-                  <Typography color="textSecondary">
-                    {latest.TotalFlowNegative} L
-                  </Typography>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
         </Grid>
       </Box>
 
     </Modal>
       <Typography variant='h4' sx={{ textAlign: 'center', }}>
-        {info.split('PIWAD_FLOW_').pop().replace('-', ' ')}
+        {info.split('PIWAD_').pop().replace('-', ' ').replace('_', ' ')}
       </Typography>
-      <Divider></Divider>
-      <Grid container spacing={2} onClick={handleOpen} sx={{ paddingTop: '10px' }}>
+      <Grid container spacing={2} onClick={handleOpen} sx={{ paddingTop: '10px', display: 'inline-flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         {/* First Card */}
-        <Grid item xs={6} >
+        <Grid item xs={8} >
           <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
               <Grid item container direction={'column'}>
@@ -427,20 +358,20 @@ function Charts({ id }) {
         </Grid>
 
         {/* Second Card */}
-        <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `5px solid ${borderColor.flow}` }}>
+        <Grid item xs={8} sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Card className='card' onClick={() => handleCardClick('Current Pressure')} sx={{ border: `5px solid ${borderColor.pressure}` }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
               <Grid item container direction={'column'}>
                 <Typography variant="h5" component="h2">
-                  Flow
+                  Current Pressure
                 </Typography>
                 <Typography color="textSecondary">
-                  {latest.CurrentFlow} m3/h
+                  {latest.CurrentPressure} m3/h
                 </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
                 <GaugeChart id="gauge-chart"
-                  percent={latest.CurrentFlow / 600}
+                  percent={latest.CurrentPressure / 600}
                   cornerRadius={0.2}
                   arcWidth={0.4}
                   // nrOfLevels={420}
@@ -457,50 +388,9 @@ function Charts({ id }) {
             </CardContent>
           </Card>
         </Grid>
-
-        {/* Third Card */}
-        <Grid item xs={6}>
-          <Card className='card' onClick={() => handleCardClick('Flow Positive')} sx={{ border: `5px solid ${borderColor.positive}` }}>
-            <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
-              <Grid container spacing={2}>
-                {/* <Grid item>
-                  GAUGE
-                </Grid>  */}
-                <Grid item xs={12} sm container>
-                  <Grid item xs container direction={"column"} spacing={2}>
-                    <Grid item xs>
-                      <Typography variant="h5" component="h2">
-                        Positive
-                      </Typography>
-                      <Typography color={"textSecondary"}>
-                        {latest.TotalFlowPositive} L
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Fourth Card */}
-        <Grid item xs={6}>
-          <Card className='card' onClick={() => handleCardClick('Flow Negative')} sx={{ border: `5px solid ${borderColor.negative}` }}>
-            <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
-              <Grid item container direction={'column'}>
-                <Typography variant="h5" component="h2">
-                  Negative
-                </Typography>
-                <Typography color="textSecondary">
-                  {latest.TotalFlowNegative} L
-                </Typography>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
       </Grid>
     </div>
   );
 }
 
-export default Charts;
+export default Pressure;
