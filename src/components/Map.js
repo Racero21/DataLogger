@@ -20,10 +20,16 @@ function lerp(min, max, val) {
   return Math.max(0, Math.round(((val - min) / (max - min)) * 100))
 }
 
-function batteryPercent(curVoltage) {
+function batteryPercentQ(curVoltage) {
   // Quadratic Regression Model for 3.2 V LiFePo4 battery
   const a = 5.93, b = -35.26, c = 52.41
   return Math.ceil(((a * curVoltage ** 2) + b * curVoltage + c) * 100)
+}
+
+function batteryPercentL(curVoltage) {
+  // Logarithmic Regression Model for 3.2 V LiFePo4 battery
+  const a = 8, b = -8.7
+  return Math.ceil(((a * Math.log(curVoltage)) + b) * 100)
 }
 
 function MyMap() {
@@ -104,7 +110,7 @@ function MyMap() {
             <Marker position={[item.Latitude, item.Longitude]} icon={markerIcon}>
               <Tooltip permanent direction='bottom' offset={[0, 10]} >
                 <div className={darkMode ? "pslabel-dark" : "pslabel-light"}>
-                  {item.Name.split('_').pop().replace('-', ' ')}
+                  {item.Name.split('_').pop().replaceAll('-', ' ')} 
                 </div>
               </Tooltip>
             </Marker>
@@ -112,11 +118,14 @@ function MyMap() {
               <Tooltip sticky permanent direction='top' offset={[0, -10]}>
                 <div key={index} style={{ 'textAlign': 'center' }}>
                   <strong>
-                    {logData?.get(item.LoggerId)?.CurrentPressure ? <>{logData?.get(item.LoggerId)?.CurrentPressure < 10 ? <span className='blinking'>🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></span> : <>🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></>}</> : ''}
-                    {logData?.get(item.LoggerId)?.CurrentFlow ? <> 💧 {logData?.get(item.LoggerId)?.CurrentFlow} <em>lps</em><br></br> </> : ''}
-                    {logData?.get(item.LoggerId)?.AverageVoltage ? <> ⚡ {logData?.get(item.LoggerId)?.AverageVoltage} <em>V</em> </> : ''}
+                    {logData?.get(item.LoggerId)?.CurrentPressure ? 
+                    <> {(logData.get(item.LoggerId).CurrentPressure < item.PressureLimit.split(',')[0]) || (logData.get(item.LoggerId).CurrentPressure > item.PressureLimit.split(',')[1]) ?
+                    <span className='blinking'>🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></span> :
+                    <> 🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></>}</> : ''}
+                    {logData?.get(item.LoggerId)?.CurrentFlow ? <> 💧 {logData.get(item.LoggerId).CurrentFlow} <em>lps</em><br></br> </> : ''}
+                    {logData?.get(item.LoggerId)?.AverageVoltage ? <> ⚡ {logData.get(item.LoggerId).AverageVoltage} <em>V</em> </> : ''}
                     {/* {logData?.get(item.LoggerId)?.AverageVoltage? <> 🔋 {lerp(2.8,3.4,logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </>:''} */}
-                    {logData?.get(item.LoggerId)?.AverageVoltage ? <> 🔋 {batteryPercent(logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </> : ''}
+                    {logData?.get(item.LoggerId)?.AverageVoltage ? <> 🔋 {batteryPercentL(logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </> : ''}
                   </strong>
                 </div>
               </Tooltip>

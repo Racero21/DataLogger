@@ -7,7 +7,7 @@ import Charts from './components/Chart';
 import Pressure from './components/Pressure'
 import ToggleButtonsMultiple from './components/Toggle';
 import MyMap from './components/Map';
-import { Box } from '@mui/material';
+import { Box, Divider, Grid } from '@mui/material';
 import Login from './Login';
 import AuthProvider from './auth/AuthProvider';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -27,34 +27,34 @@ function App() {
 
   const filteredData = data.filter((item) =>
     String(item.LoggerId).toLowerCase().includes(searchQuery.toLowerCase()) || item.Name.toLowerCase().includes(searchQuery.toLowerCase())
-);
-
-
-const RenderComponentWrapper = () => {
-  return (
-    <>
-      <ToggleButtonsMultiple onChange={handleToggleChange} setSearchQuery={setSearchQuery} />
-      {renderComponent()}
-    </>
   );
-};
+
+
+  const RenderComponentWrapper = () => {
+    return (
+      <>
+        <ToggleButtonsMultiple onChange={handleToggleChange} setSearchQuery={setSearchQuery} />
+        <Grid container gap={2} mt={0.5} columns={14} justifyContent={'center'}>
+          {renderComponent()}
+        </Grid>
+      </>
+    );
+  };
 
   const renderComponent = () => {
     switch (selectedComponent) {
       case 'statistics':
-        return filteredData.map((item) => (
-          <Box
-            p={2}
-            sx={{
-              width: '30%',
-              boxShadow: 4,
-              borderRadius: '20px',
-            }}
-          >
-            {String(item.Name).toLowerCase().includes('pressure') ? <Pressure id={item.LoggerId} name={item.Name}/>: <Charts id={item.LoggerId} name={item.Name} />}
-            {/* <Chart id={item.LoggerId} /> */}
-          </Box>
-        ));
+        return <>
+          {filteredData.map((item) => (
+            <Grid item xs={12} sm={6} md={4}
+              p={2} sx={{boxShadow: 4, borderRadius: '10px' }}
+              minWidth={400}>
+              {String(item.Name).toLowerCase().includes('pressure') ? <Pressure id={item.LoggerId} name={item.Name} /> : <Charts id={item.LoggerId} name={item.Name} />}
+              {/* <Chart id={item.LoggerId} /> */}
+            </Grid>))}
+          <Divider width='100%'></Divider>
+          <h1>other graphs</h1>
+        </>
       case 'map':
         return (
           <div style={{ border: '2px solid #00b3ff', flex: '1' }}>
@@ -68,7 +68,7 @@ const RenderComponentWrapper = () => {
       case 'add':
         return <AddUser />
       default:
-        return <MyMap/>;
+        return <MyMap />;
     }
   };
 
@@ -114,7 +114,7 @@ const RenderComponentWrapper = () => {
   return (
     <ThemeProvider theme={lightTheme}>
       <CssBaseline />
-      
+
       <div className='App'>
         <Box
           display="flex"
@@ -123,23 +123,23 @@ const RenderComponentWrapper = () => {
           gap={1.5}
           flexDirection="row"
           p={1}
-          sx={{ boxSizing: 'border-box',  height: '100%', width: '100vw', maxWidth: '100%' }}
+          sx={{ boxSizing: 'border-box', height: '100%', width: '100vw', maxWidth: '100%' }}
         >
           <Router>
             <AuthProvider>
-              
+
               <Routes>
                 <Route path='/login' element={<Login />} />
                 <Route element={<PrivateRoute />}>
                   <Route path='/' element={<RenderComponentWrapper />} />
                 </Route>
-              </Routes>  
+              </Routes>
             </AuthProvider>
           </Router>
         </Box>
       </div>
-      
-      
+
+
     </ThemeProvider>
   );
 }

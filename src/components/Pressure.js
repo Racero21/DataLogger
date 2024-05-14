@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
-import { Grid, Card, CardContent, Typography } from '@mui/material';
+import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
 import 'chartjs-adapter-date-fns';
 import { subHours } from 'date-fns';
@@ -14,7 +14,8 @@ function Pressure({ id }) {
   const [datac, setCData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState([]);
-  const [info, setInfo] = useState(null)
+  const [loggerData, setLoggerData] = useState(null)
+  const [loggerName, setLoggerName] = useState(null)
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
 
@@ -28,10 +29,10 @@ function Pressure({ id }) {
   };
 
   const borderColor = {
-    voltage: '#FFA726', // Electric Orange
-    pressure: '#00a2ed',    // Microsoft Blue
+    voltage: '#ffac33 ', // Electric Orange
+    pressure: '#007fff ',    // Microsoft Blue
     positive: '#4CAF50', // Fresh Green
-    negative: '#FF7043', // Rusty Red
+    negative: '#af579f', // Rusty Red
   };
 
   const filterDataByTimeRange = (data, timeRange) => {
@@ -60,9 +61,6 @@ function Pressure({ id }) {
       default:
         timeThreshold = 0;
     }
-    // data.map((item) => {
-    // console.log(parseTime(item.LogTime) > timeThreshold?(parseTime(item.LogTime), timeThreshold, timeRange) : '')
-    // })
     return data.filter(item => parseTime(item.LogTime) >= timeThreshold);
   }
 
@@ -75,38 +73,33 @@ function Pressure({ id }) {
     const fetchData = async () => {
       console.log(id)
       try {
-        const response = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/pressure_log/` + id);
-        const name = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger`)
+        const logResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/pressure_log/` + id);
+        const loggerResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger`)
 
-        const names = name.data;
-        names.map(item => {
+        const loggers = loggerResponse.data;
+        loggers.map(item => {
           if (item.LoggerId === id) {
-            setInfo(item.Name);
+            setLoggerData(item);
+            setLoggerName(item.Name.split('_').pop().replaceAll('-', ' '))
             console.log(item.Name)
+            return 0;
           }
-          return 0;
+          return -1;
         })
-        // setInfo(names);
-        console.log(info)
+        console.log(loggers)
 
-        const data = response.data;
+        const data = logResponse.data;
         const lastElement = data[data.length - 1];
 
-        // const parsed = parseTime(data);
         const filtered = filterDataByTimeRange(data, selectedTimeFrame)
 
         setLatest(lastElement);
-        // console.log(selectedTimeFrame)
         console.log(filtered)
         console.log(`${Object.keys(data).length} filtered down to ${Object.keys(filtered).length}`)
-        // console.log(data)
-        // console.log(latest);
+
         // Process the data from the response and create the data object for the chart
         const transformedData = {
-          // labels: data.map(item => item.LogTime),
-          // labels: filtered.map(item => parseTime(item.LogTime)),
           labels: filtered.map(item => parseTime(item.LogTime)),
-          // labels: filterDataByTimeRange(parsed, selectedTimeFrame),
           datasets: [
             {
               label: 'Average Voltage',
@@ -116,7 +109,7 @@ function Pressure({ id }) {
               // backgroundColor: '#FAFAFA', // Light Grey
               color: 'yellow',
               fill: true,
-              hidden: false,
+              hidden: true,
             },
             {
               label: 'Current Pressure',
@@ -145,7 +138,7 @@ function Pressure({ id }) {
       case 'Average Voltage':
         return 'V';
       case 'Current Pressure':
-        return 'm3/h';
+        return 'psi';
       default:
         return '';
     }
@@ -185,7 +178,7 @@ function Pressure({ id }) {
           size: 20,
         },
         display: true,
-        text: 'Time Series Data of ' + info,
+        text: 'Time Series Data of ' + loggerName,
       },
       legend: {
         display: false,
@@ -240,7 +233,7 @@ function Pressure({ id }) {
     >
       <Box
         display={'flex'}
-        sx={{ width: 'fit-content', padding: '20px', margin: 'auto', height: 'fit-content', backgroundColor: 'white', flexDirection: 'column' }}
+        sx={{ width: '65vw', padding: '1.5%', margin: 'auto', backgroundColor: 'white', flexDirection: 'column', borderRadius: '10px' }}
         justifyContent={'center'}
       >
         <select value={selectedTimeFrame} onChange={handleTimeFrameChange}>
@@ -252,7 +245,10 @@ function Pressure({ id }) {
           <option value="month">Last Month</option>
         </select>
         <Line data={datac} options={options} />
-        <Grid container spacing={2} onClick={handleOpen}>
+        <Typography variant='subtitle1'>
+          LATEST RECORDED LOG - <strong>{`${new Date(latest.LogTime.slice(0, -1))}`}</strong>
+        </Typography>
+        <Grid container spacing={2} onClick={handleOpen} justifyContent={'center'}>
           {/* First Card */}
           <Grid item xs={5}>
             <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
@@ -322,11 +318,12 @@ function Pressure({ id }) {
 
     </Modal>
       <Typography variant='h4' sx={{ textAlign: 'center', }}>
-        {info.split('PIWAD_').pop().replace('-', ' ').replace('_', ' ')}
+        {loggerName.split('_').pop().replaceAll('-', ' ')}
       </Typography>
-      <Grid container spacing={2} onClick={handleOpen} sx={{ paddingTop: '10px', display: 'inline-flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <Divider></Divider>
+      <Grid container spacing={2} onClick={handleOpen} sx={{ paddingTop: '10px'}}>
         {/* First Card */}
-        <Grid item xs={8} >
+        <Grid item xs={6} >
           <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
               <Grid item container direction={'column'}>
@@ -358,12 +355,12 @@ function Pressure({ id }) {
         </Grid>
 
         {/* Second Card */}
-        <Grid item xs={8} sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column' }}>
           <Card className='card' onClick={() => handleCardClick('Current Pressure')} sx={{ border: `5px solid ${borderColor.pressure}` }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
               <Grid item container direction={'column'}>
                 <Typography variant="h5" component="h2">
-                  Current Pressure
+                  Pressure
                 </Typography>
                 <Typography color="textSecondary">
                   {latest.CurrentPressure} m3/h
@@ -383,7 +380,6 @@ function Pressure({ id }) {
                   marginInPercent={0}
                   hideText={true}
                 />
-
               </div>
             </CardContent>
           </Card>
