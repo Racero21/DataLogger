@@ -68,9 +68,9 @@ app.get('/api/pressure_log/:id?', (req, res) => {
 });
 
 app.get('/api/latest_log/flow/:id?', (req, res) => {
+    let query = 'SELECT * FROM latest_flow_log '
     const LoggerId = req.params.id;
-    if(!LoggerId) return res.status(500).json({error: `No Logger ID given`});
-    let query = 'SELECT * FROM latest_flow_log WHERE LoggerId = ' + LoggerId
+    if(LoggerId) query += 'WHERE LoggerId = ' + LoggerId
     // console.log(req.params.id)
     pool.query(query, (error, results) => {
         if(error){
@@ -81,9 +81,9 @@ app.get('/api/latest_log/flow/:id?', (req, res) => {
 })
 
 app.get('/api/latest_log/pressure/:id?', (req, res) => {
+    let query = 'SELECT * FROM latest_pressure_log '
     const LoggerId = req.params.id;
-    if(!LoggerId) return res.status(500).json({error: `No Logger ID given`});
-    let query = 'SELECT * FROM latest_pressure_log WHERE LoggerId = ' + LoggerId
+    if(LoggerId) query += 'WHERE LoggerId = ' + LoggerId
     // console.log(query)
     pool.query(query, (error, results) => {
         if(error){
