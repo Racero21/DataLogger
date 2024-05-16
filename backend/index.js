@@ -25,6 +25,8 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME,
 });
 
+// DATA ENDPOINTS - GET
+
 app.get('/api/logger', (req, res) => {
     const query = 'SELECT * FROM datalogger ORDER BY Name ASC';
     pool.query(query, (error, results) => {
@@ -37,13 +39,11 @@ app.get('/api/logger', (req, res) => {
 
 app.get('/api/flow_log/:id?', (req, res) => {
     const LoggerId = req.params.id;
-//    let query = 'SELECT * FROM flow_log ORDER BY LoggerId, LogTime ASC';
-
     if (LoggerId) {
         query = `SELECT * FROM flow_log WHERE LoggerId = ${LoggerId} ORDER BY LogTime ASC`
     }
     else return res.status(500).json({error: `Error`});
-    console.log(query)
+    // console.log(query)
     pool.query(query, (error, results) => {
         if(error) {
             return res.status(500).json({error: `Failed to fetch data: ${error.message}`});
@@ -54,13 +54,11 @@ app.get('/api/flow_log/:id?', (req, res) => {
 
 app.get('/api/pressure_log/:id?', (req, res) => {
     const LoggerId = req.params.id;
-//    let query = 'SELECT * FROM pressure_log ORDER BY LoggerId, LogTime ASC';
-
     if (LoggerId) {
         query = `SELECT * FROM pressure_log WHERE LoggerId = ${LoggerId} ORDER BY LogTime ASC`
     }
     else return res.status(500).json({error: `Error`});
-    console.log(query)
+    // console.log(query)
     pool.query(query, (error, results) => {
         if(error) {
             return res.status(500).json({error: `Failed to fetch data: ${error.message}`});
@@ -70,9 +68,10 @@ app.get('/api/pressure_log/:id?', (req, res) => {
 });
 
 app.get('/api/latest_log/flow/:id?', (req, res) => {
-    let query = 'SELECT * FROM latest_flow_log'
+    const LoggerId = req.params.id;
+    if(!LoggerId) return res.status(500).json({error: `No Logger ID given`});
+    let query = 'SELECT * FROM latest_flow_log WHERE LoggerId = ' + LoggerId
     // console.log(req.params.id)
-    if(req.params.id) query += ' WHERE LoggerId = ' + req.params.id
     pool.query(query, (error, results) => {
         if(error){
             return res.status(500).json({error: `Failed to fetch data: ${error.message}`})
@@ -82,9 +81,10 @@ app.get('/api/latest_log/flow/:id?', (req, res) => {
 })
 
 app.get('/api/latest_log/pressure/:id?', (req, res) => {
-    let query = 'SELECT * FROM latest_pressure_log'
-    if(req.params.id) query += ' WHERE LoggerId = ' + req.params.id
-    console.log(query)
+    const LoggerId = req.params.id;
+    if(!LoggerId) return res.status(500).json({error: `No Logger ID given`});
+    let query = 'SELECT * FROM latest_pressure_log WHERE LoggerId = ' + LoggerId
+    // console.log(query)
     pool.query(query, (error, results) => {
         if(error){
             return res.status(500).json({error: `Failed to fetch data: ${error.message}`})
@@ -92,6 +92,20 @@ app.get('/api/latest_log/pressure/:id?', (req, res) => {
         res.json(results)
     })
 })
+
+app.get('/api/totalizer/:id?', (req, res) =>{
+    const LoggerId = req.params.id;
+    if(!LoggerId) return res.status(500).json({error: `No Logger ID given`});
+    let query = 'SELECT * FROM totalizer WHERE LoggerId = ' + LoggerId
+    pool.query(query, (error, results) => {
+        if(error){
+            return res.status(500).json({error: `Failed to fetch data ${error.message}`})
+        }
+        res.json(results)
+    })
+})
+
+// DATA ENDPOINTS - UPDATE
 
 app.patch('/api/logger_limits/:id', (req, res) => {
     // let query = 'SELECT * FROM latest_log'
@@ -109,7 +123,7 @@ app.patch('/api/logger_limits/:id', (req, res) => {
         return
     }
     query = query.slice(-1) == ',' ? query.slice(0,-1) : query
-    console.log(`query: ${query} query.slice(-1): ${query.slice(-1)}`)
+    // console.log(`query: ${query} query.slice(-1): ${query.slice(-1)}`)
     query += ` WHERE LoggerId = ${LoggerId}`
     console.log(query)
 
@@ -119,9 +133,11 @@ app.patch('/api/logger_limits/:id', (req, res) => {
         }
         res.json(results)
         console.log(`Logger ${LoggerId} limits changed! (${VoltageLimit} - ${FlowLimit} - ${PressureLimit})`)
-        console.log(query)
+        // console.log(query)
     })
 })
+
+// AUTHENTICATION ENDPOINTS
 
 app.post('/auth/login', (req, res) => {
     const { username, password } = req.body;
