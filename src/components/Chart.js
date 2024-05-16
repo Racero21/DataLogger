@@ -191,10 +191,11 @@ function Charts({ id }) {
           pinch: {
             enabled: true
           },
-          mode: 'xy',
+          mode: 'x',
         },
         pan: {
-          enabled: true
+          enabled: true,
+          mode: 'x',
         }
       },
       title: {
@@ -204,13 +205,6 @@ function Charts({ id }) {
         display: true,
         text: 'Time Series Data of ' + loggerName
       },
-      // subtitle: {
-      //   display: true,
-      //   text: 'LoggerID: ' + id,
-      //   padding: {
-      //     bottom: 10
-      //   }
-      // },
       legend: {
         display: false,
       },
@@ -286,7 +280,7 @@ function Charts({ id }) {
               <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `5px solid ${borderColor.flow}` }}>
                 <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
                   <Grid container direction={'column'}>
-                    <Typography variant="overline" fontSize={16}>
+                    <Typography variant="button" fontSize={16}>
                       Flow
                     </Typography>
                     <Typography variant="h4">
@@ -300,7 +294,7 @@ function Charts({ id }) {
                       arcWidth={0.4}
                       // nrOfLevels={420}
                       // formatTextValue={(value) => value + ' L/s'}
-                      arcsLength={[0.075, 0.075, 0.75, 0.1]}
+                      arcsLength={[0.075, 0.15, 0.75, 0.1]}
                       // 15% 100
                       colors={['#EA4228', '#F5CD19', 'green', '#F5CD19']}
                       animate={false}
@@ -319,7 +313,7 @@ function Charts({ id }) {
               <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
                 <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
                   <Grid item container direction={'column'}>
-                    <Typography variant="overline" fontSize={16}>
+                    <Typography variant="button" fontSize={16}>
                       Voltage
                     </Typography>
                     <Typography variant='h4'>
@@ -349,8 +343,8 @@ function Charts({ id }) {
             <Grid item xs={2} sx={{ display: 'flex' }}>
               <Card className='card' onClick={() => handleCardClick('Flow Positive')} sx={{ flex: 1, border: `5px solid ${borderColor.positive}` }}>
                 <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant="overline" fontSize={16}>
-                    Totalizer +
+                  <Typography variant="button" fontSize={16}>
+                    Totalizer Positive
                   </Typography>
                   <Typography variant='h6' >
                     {latest.TotalFlowPositive ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
@@ -363,8 +357,8 @@ function Charts({ id }) {
             <Grid item xs={2} sx={{ display: 'flex' }}>
               <Card className='card' onClick={() => handleCardClick('Flow Negative')} sx={{ flex: 1, border: `5px solid ${borderColor.negative}` }}>
                 <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant="overline" fontSize={16}>
-                    Totalizer -
+                  <Typography variant="button" fontSize={16}>
+                    Totalizer Negative
                   </Typography>
                   <Typography variant='h6' >
                     {latest.TotalFlowNegative ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
@@ -384,67 +378,65 @@ function Charts({ id }) {
       <Grid container spacing={2} onClick={handleOpen} sx={{ paddingTop: '10px' }}>
         {/* First Card */}
         <Grid item xs={6} >
+          <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `5px solid ${borderColor.flow}` }}>
+            <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
+              <Grid item container direction={'column'} >
+                <Typography variant="button" >
+                  Flow
+                </Typography>
+                <Typography variant='h6' fontWeight='bolder'>
+                  {latest.CurrentFlow ?? <strong style={{ 'color': 'red' }}>N/A</strong>} L/s
+                </Typography>
+              </Grid>
+              <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
+                <GaugeChart id="gauge-chart"
+                  percent={latest.CurrentFlow / 41}
+                  cornerRadius={0.2}
+                  arcWidth={0.4}
+                  // nrOfLevels={420}
+                  // formatTextValue={(value) => value + ' L/s'}
+                  arcsLength={[0.075, 0.075, 0.75]}
+                  // 15% 100
+                  colors={['#EA4228', '#F5CD19', 'green']}
+                  animate={false}
+                  textColor='black'
+                  marginInPercent={0}
+                  hideText={true}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </Grid>
+        {/* Second Card */}
+        <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column' }}>
           <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
               <Grid item container direction={'column'}>
-                <Typography variant="h5" component="h2">
+                <Typography variant="button">
                   Voltage
                 </Typography>
-                <Typography color="textSecondary">
+                <Typography variant='h6' fontWeight='bolder'>
                   {latest.AverageVoltage ?? <strong style={{ 'color': 'red' }}>N/A</strong>} Volts
                 </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
                 <GaugeChart id="gauge-chart"
-                  percent={latest.AverageVoltage / 10}
+                  percent={latest.AverageVoltage / 4.5}
                   cornerRadius={0.2}
                   arcWidth={0.4}
                   // nrOfLevels={420}
                   formatTextValue={(value) => value / 10 + 'V'}
-                  arcsLength={[0.1, 0.1, 0.6, 0.1, 0.1]}
+                  arcsLength={[0.15, 0.15, 0.6, 0.1, 0.1]}
                   colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
                   hideText={true}
                 />
-
               </div>
             </CardContent>
           </Card>
-        </Grid>
 
-        {/* Second Card */}
-        <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `5px solid ${borderColor.flow}` }}>
-            <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
-              <Grid item container direction={'column'}>
-                <Typography variant="h5" component="h2">
-                  Flow
-                </Typography>
-                <Typography color="textSecondary">
-                  {latest.CurrentFlow ?? <strong style={{ 'color': 'red' }}>N/A</strong>} L/s
-                </Typography>
-              </Grid>
-              <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
-                <GaugeChart id="gauge-chart"
-                  percent={latest.CurrentFlow / 48.61}
-                  cornerRadius={0.2}
-                  arcWidth={0.4}
-                  // nrOfLevels={420}
-                  // formatTextValue={(value) => value + ' L/s'}
-                  arcsLength={[0.075, 0.075, 0.75, 0.1]}
-                  // 15% 100
-                  colors={['#EA4228', '#F5CD19', 'green', '#F5CD19']}
-                  animate={false}
-                  textColor='black'
-                  marginInPercent={0}
-                  hideText={true}
-                />
-
-              </div>
-            </CardContent>
-          </Card>
         </Grid>
         {/* Third Card */}
         <Grid item xs={6}>
@@ -454,10 +446,10 @@ function Charts({ id }) {
                 <Grid item xs={12} sm container>
                   <Grid item xs container direction={"column"} spacing={2}>
                     <Grid item xs>
-                      <Typography variant="h5" component="h2">
+                      <Typography variant="button">
                         Totalizer Positive
                       </Typography>
-                      <Typography color={"textSecondary"}>
+                      <Typography variant='h6'>
                         {latest.TotalFlowPositive} L
                       </Typography>
                     </Grid>
@@ -473,10 +465,10 @@ function Charts({ id }) {
           <Card className='card' onClick={() => handleCardClick('Flow Negative')} sx={{ border: `5px solid ${borderColor.negative}` }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
               <Grid item container direction={'column'}>
-                <Typography variant="h5" component="h2">
+                <Typography variant="button">
                   Totalizer Negative
                 </Typography>
-                <Typography color="textSecondary">
+                <Typography variant='h6'>
                   {latest.TotalFlowNegative} L
                 </Typography>
               </Grid>

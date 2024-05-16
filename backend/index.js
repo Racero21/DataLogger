@@ -26,7 +26,7 @@ const pool = mysql.createPool({
 });
 
 app.get('/api/logger', (req, res) => {
-    const query = 'SELECT * FROM datalogger ORDER BY LoggerId ASC';
+    const query = 'SELECT * FROM datalogger ORDER BY Name ASC';
     pool.query(query, (error, results) => {
         if(error) {
             return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
@@ -37,13 +37,14 @@ app.get('/api/logger', (req, res) => {
 
 app.get('/api/flow_log/:id?', (req, res) => {
     const LoggerId = req.params.id;
-    let query = 'SELECT * FROM flow_log ORDER BY LoggerId, LogTime ASC';
+//    let query = 'SELECT * FROM flow_log ORDER BY LoggerId, LogTime ASC';
 
     if (LoggerId) {
-        query = 'SELECT * FROM flow_log WHERE LoggerId = ? ORDER BY LogTime ASC'
+        query = `SELECT * FROM flow_log WHERE LoggerId = ${LoggerId} ORDER BY LogTime ASC`
     }
+    else return res.status(500).json({error: `Error`});
     console.log(query)
-    pool.query(query, LoggerId ? [LoggerId] : [], (error, results) => {
+    pool.query(query, (error, results) => {
         if(error) {
             return res.status(500).json({error: `Failed to fetch data: ${error.message}`});
         }
@@ -53,13 +54,14 @@ app.get('/api/flow_log/:id?', (req, res) => {
 
 app.get('/api/pressure_log/:id?', (req, res) => {
     const LoggerId = req.params.id;
-    let query = 'SELECT * FROM pressure_log ORDER BY LoggerId, LogTime ASC';
+//    let query = 'SELECT * FROM pressure_log ORDER BY LoggerId, LogTime ASC';
 
     if (LoggerId) {
-        query = 'SELECT * FROM pressure_log WHERE LoggerId = ? ORDER BY LogTime ASC'
+        query = `SELECT * FROM pressure_log WHERE LoggerId = ${LoggerId} ORDER BY LogTime ASC`
     }
+    else return res.status(500).json({error: `Error`});
     console.log(query)
-    pool.query(query, LoggerId ? [LoggerId] : [], (error, results) => {
+    pool.query(query, (error, results) => {
         if(error) {
             return res.status(500).json({error: `Failed to fetch data: ${error.message}`});
         }
@@ -102,7 +104,12 @@ app.patch('/api/logger_limits/:id', (req, res) => {
     if(VoltageLimit) query += ` VoltageLimit = "${VoltageLimit}",`
     if(FlowLimit) query += ` FlowLimit = "${FlowLimit}",`
     if(PressureLimit) query += ` PressureLimit = "${PressureLimit}"`
-    query = query[-1] == ',' ? query.slice(0,-1) : query
+    if(!(VoltageLimit || PressureLimit || FlowLimit)){
+        console.log("No change")
+        return
+    }
+    query = query.slice(-1) == ',' ? query.slice(0,-1) : query
+    console.log(`query: ${query} query.slice(-1): ${query.slice(-1)}`)
     query += ` WHERE LoggerId = ${LoggerId}`
     console.log(query)
 
@@ -153,7 +160,7 @@ app.post('/auth/register', (req, res) => {
     console.log("register:" + hash);
     // Query database to validate user credentials
     const query = 'INSERT INTO user (username, password) VALUES (?, ?)';
-    
+
     pool.query(query, [username, hash], (error, results) => {
         if (error) {
             return res.status(500).json({ error: `Failed to authenticate: ${error.message}` });

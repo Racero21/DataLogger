@@ -167,10 +167,11 @@ function Pressure({ id }) {
           pinch: {
             enabled: true
           },
-          mode: 'xy',
+          mode: 'x',
         },
         pan: {
-          enabled: true
+          enabled: true,
+          mode: 'x'
         }
       },
       title: {
@@ -224,156 +225,156 @@ function Pressure({ id }) {
   }
 
   return (
-    <div><Modal
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
-      sx={{ display: 'flex', justifyContent: 'center' }}
-    >
-      <Box
-        display={'flex'}
-        sx={{ width: '65vw', padding: '1.5%', margin: 'auto', backgroundColor: 'white', flexDirection: 'column', borderRadius: '10px' }}
-        justifyContent={'center'}
+    <div>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        sx={{ display: 'flex', justifyContent: 'center' }}
       >
-        <select value={selectedTimeFrame} onChange={handleTimeFrameChange}>
-          <option value="hour">Last Hour</option>
-          <option value="hour12">Last 12 Hours</option>
-          <option value="day">Last 24 Hours</option>
-          <option value="day2">Last 48 Hours</option>
-          <option value="week">Last Week</option>
-          <option value="month">Last Month</option>
-        </select>
-        <Line data={datac} options={options} />
-        <Typography variant='subtitle1'>
+        <Box
+          display={'flex'}
+          sx={{ width: '65vw', padding: '1.5%', margin: 'auto', backgroundColor: 'white', flexDirection: 'column', borderRadius: '10px' }}
+          justifyContent={'center'}
+        >
+          <select value={selectedTimeFrame} onChange={handleTimeFrameChange}>
+            <option value="hour">Last Hour</option>
+            <option value="hour12">Last 12 Hours</option>
+            <option value="day">Last 24 Hours</option>
+            <option value="day2">Last 48 Hours</option>
+            <option value="week">Last Week</option>
+            <option value="month">Last Month</option>
+          </select>
+          <Line data={datac} options={options} />
+          <Typography variant='subtitle1'>
           LATEST RECORDED LOG - <strong>{`${new Date(latest.LogTime.slice(0, -1))}`}</strong>
-        </Typography>
-        <Grid container spacing={2} onClick={handleOpen} justifyContent={'center'}>
-          {/* First Card */}
-          <Grid item xs={5}>
-            <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
-              <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
-                <Grid item container direction={'column'}>
-                  <Typography variant="h5" component="h2">
-                    Voltage
-                  </Typography>
-                  <Typography color="textSecondary">
-                    {latest.AverageVoltage} Volts
-                  </Typography>
-                </Grid>
-                <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
-                  <GaugeChart id="gauge-chart"
-                    percent={latest.AverageVoltage / 10}
-                    cornerRadius={0.2}
-                    arcWidth={0.4}
-                    // nrOfLevels={420}
-                    formatTextValue={(value) => value / 10 + 'V'}
-                    arcsLength={[0.1, 0.1, 0.6, 0.1, 0.1]}
-                    colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
-                    animate={false}
-                    textColor='black'
-                    marginInPercent={0}
-                    hideText={true}
-                  />
+          </Typography>
+          <Grid container spacing={2} onClick={handleOpen} justifyContent={'center'}>
+            {/* First Card */}
+            <Grid item xs={6}>
+              <Card className='card' onClick={() => handleCardClick('Current Pressure')} sx={{ border: `5px solid ${borderColor.pressure}` }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
+                  <Grid item container direction={'column'}>
+                    <Typography variant="overline" fontSize={16}>
+                      Current Pressure
+                    </Typography>
+                    <Typography variant="h4">
+                      {latest.CurrentPressure ?? <strong style={{ 'color': 'red' }}>N/A</strong>} psi
+                    </Typography>
+                  </Grid>
+                  <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
+                    <GaugeChart id="gauge-chart"
+                      percent={latest.CurrentPressure / 600}
+                      cornerRadius={0.2}
+                      arcWidth={0.4}
+                      // nrOfLevels={420}
+                      formatTextValue={(value) => value + 'V'}
+                      arcsLength={[0.2, 0.19, 0.44, 0.06, 0.1]}
+                      colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
+                      animate={false}
+                      textColor='black'
+                      marginInPercent={0}
+                      hideText={true}
+                    />
 
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Second Card */}
+            <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
+                  <Grid item container direction={'column'}>
+                    <Typography variant="overline" fontSize={16}>
+                      Voltage
+                    </Typography>
+                    <Typography variant="h4">
+                      {latest.AverageVoltage ?? <strong style={{ 'color': 'red' }}>'N/A'</strong>} Volts
+                    </Typography>
+                  </Grid>
+                  <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
+                    <GaugeChart id="gauge-chart"
+                      percent={latest.AverageVoltage / 10}
+                      cornerRadius={0.2}
+                      arcWidth={0.4}
+                      // nrOfLevels={420}
+                      formatTextValue={(value) => value / 10 + 'V'}
+                      arcsLength={[0.1, 0.1, 0.6, 0.1, 0.1]}
+                      colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
+                      animate={false}
+                      textColor='black'
+                      marginInPercent={0}
+                      hideText={true}
+                    />
+
+                  </div>
+                </CardContent>
+              </Card>
+
+            </Grid>
+
           </Grid>
+        </Box>
 
-          {/* Second Card */}
-          <Grid item xs={5} sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Card className='card' onClick={() => handleCardClick('Current Pressure')} sx={{ border: `5px solid ${borderColor.pressure}` }}>
-              <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
-                <Grid item container direction={'column'}>
-                  <Typography variant="h5" component="h2">
-                    Current Pressure
-                  </Typography>
-                  <Typography color="textSecondary">
-                    {latest.CurrentPressure} m3/h
-                  </Typography>
-                </Grid>
-                <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
-                  <GaugeChart id="gauge-chart"
-                    percent={latest.CurrentPressure / 600}
-                    cornerRadius={0.2}
-                    arcWidth={0.4}
-                    // nrOfLevels={420}
-                    formatTextValue={(value) => value + 'V'}
-                    arcsLength={[0.2, 0.19, 0.44, 0.06, 0.1]}
-                    colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
-                    animate={false}
-                    textColor='black'
-                    marginInPercent={0}
-                    hideText={true}
-                  />
-
-                </div>
-              </CardContent>
-            </Card>
-          </Grid>
-
-        </Grid>
-      </Box>
-
-    </Modal>
+      </Modal>
       <Typography variant='h4' sx={{ textAlign: 'center', }}>
         {loggerName.split('_').pop().replaceAll('-', ' ')}
       </Typography>
       <Divider></Divider>
-      <Grid container spacing={2} onClick={handleOpen} sx={{ paddingTop: '10px'}}>
+      <Grid container spacing={2} onClick={handleOpen} sx={{ paddingTop: '10px' }}>
         {/* First Card */}
         <Grid item xs={6} >
-          <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
+          <Card className='card' onClick={() => handleCardClick('Current Pressure')} sx={{ border: `5px solid ${borderColor.pressure}` }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
               <Grid item container direction={'column'}>
-                <Typography variant="h5" component="h2">
-                  Voltage
+                <Typography variant='button'>
+                  Pressure
                 </Typography>
-                <Typography color="textSecondary">
-                  {latest.AverageVoltage} Volts
+                <Typography variant='h6' fontWeight={'bolder'}>
+                  {latest.CurrentPressure} psi
                 </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
                 <GaugeChart id="gauge-chart"
-                  percent={latest.AverageVoltage / 10}
+                  percent={latest.CurrentPressure / 30}
                   cornerRadius={0.2}
                   arcWidth={0.4}
                   // nrOfLevels={420}
-                  formatTextValue={(value) => value / 10 + 'V'}
-                  arcsLength={[0.1, 0.1, 0.6, 0.1, 0.1]}
+                  formatTextValue={(value) => value + 'V'}
+                  arcsLength={[0.1, 0.1, 0.5, 0.1, 0.1]}
                   colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
                   hideText={true}
                 />
-
               </div>
             </CardContent>
           </Card>
         </Grid>
-
         {/* Second Card */}
         <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Card className='card' onClick={() => handleCardClick('Current Pressure')} sx={{ border: `5px solid ${borderColor.pressure}` }}>
+          <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
               <Grid item container direction={'column'}>
-                <Typography variant="h5" component="h2">
-                  Pressure
+                <Typography variant='button'>
+                  Voltage
                 </Typography>
-                <Typography color="textSecondary">
-                  {latest.CurrentPressure} m3/h
+                <Typography variant='h6' fontWeight={'bolder'}>
+                  {latest.AverageVoltage} Volts
                 </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
                 <GaugeChart id="gauge-chart"
-                  percent={latest.CurrentPressure / 600}
+                  percent={latest.AverageVoltage / 4.5}
                   cornerRadius={0.2}
                   arcWidth={0.4}
                   // nrOfLevels={420}
-                  formatTextValue={(value) => value + 'V'}
-                  arcsLength={[0.2, 0.19, 0.44, 0.06, 0.1]}
+                  formatTextValue={(value) => value / 10 + 'V'}
+                  arcsLength={[0.15, 0.15, 0.6, 0.1, 0.1]}
                   colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
                   animate={false}
                   textColor='black'
