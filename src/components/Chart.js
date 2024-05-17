@@ -4,11 +4,12 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
 import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
-import 'chartjs-adapter-date-fns';
-import zoomPlugin from 'chartjs-plugin-zoom';
-import { subHours } from 'date-fns';
+import { Chart, Interaction } from 'chart.js';
 import '../Chart.css';
-import { Chart } from 'chart.js';
+import 'chartjs-adapter-date-fns';
+import zoomPlugin, { zoom } from 'chartjs-plugin-zoom';
+import { CrosshairPlugin, Interpolate } from 'chartjs-plugin-crosshair';
+import { subHours } from 'date-fns';
 import Modal from '@mui/material/Modal';
 import { Box } from '@mui/material';
 
@@ -16,10 +17,13 @@ import { Box } from '@mui/material';
 
 function Charts({ id }) {
   Chart.register(zoomPlugin);
+  Chart.register(CrosshairPlugin);
+  Interaction.modes.interpolate = Interpolate
   const [datac, setCData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState([]);
   const [loggerData, setLoggerData] = useState(null)
+  const [totalizer, setTotalizer] = useState(null)
   const [loggerName, setLoggerName] = useState(null)
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
@@ -34,9 +38,9 @@ function Charts({ id }) {
   };
 
   const borderColor = {
-    voltage: '#ffac33 ', // Electric Orange
+    voltage: '#ffac33', // Electric Orange
     flow: '#42A5F5',    // Water Blue
-    totalizer: '#f4ff00 ',
+    totalizer: '#f4ff00',
     positive: '#4CAF50', // Fresh Green
     negative: '#af579f', // Rusty Red
   };
@@ -75,6 +79,87 @@ function Charts({ id }) {
     return new Date(datetime);
   }
 
+  const options = {
+    responsive: true,
+    maintainAspectRatio: true,
+    scales: {
+      x: {
+        type: 'time',
+        time: {
+          displayFormats: {
+            hour: 'MM/d H:00'
+          }
+          // unit: 'hour',
+        },
+      },
+    },
+    plugins: {
+      crosshair: {
+        line: {
+          color: '#f66',
+          width: 1,
+          dashPattern: [15, 5]
+        },
+        zoom: {
+          enabled: false
+        },
+        // snap: {
+        //   enabled: true
+        // },
+      },
+      zoom: {
+        zoom: {
+          wheel: {
+            enabled: true,
+          },
+          pinch: {
+            enabled: true
+          },
+          mode: 'x',
+        },
+        pan: {
+          enabled: true,
+          mode: 'x',
+        },
+        limits: {
+          x: {
+            min: 'original',
+            max: 'original'
+          }
+        }
+      },
+      title: {
+        font: {
+          size: 20,
+        },
+        display: true,
+        text: loggerName + ' Flow Meter'
+      },
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: (item) => `${item.dataset.label}: ${item.formattedValue} ${getUnitofMeasurement(item.dataset.label)}`
+        },
+        mode: 'interpolate',
+        intersect: false
+      }
+    },
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const totalizerResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/totalizer/` + id)
+      setTotalizer(totalizerResponse.data[0])
+      console.log(totalizerResponse.data[0])
+
+    }
+    fetchData()
+    // console.log(totalizer)
+
+  }, [])
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -87,7 +172,7 @@ function Charts({ id }) {
           if (item.LoggerId === id) {
             setLoggerData(item);
             setLoggerName(item.Name.split('_').pop().replaceAll('-', ' '))
-            console.log(item.Name)
+            // console.log(loggerData)
             return 0;
           }
           return -1;
@@ -161,60 +246,11 @@ function Charts({ id }) {
         return 'L/s';
       case 'Flow Positive':
       case 'Flow Negative':
-        return 'Liters';
+        return 'm3';
       default:
         return '';
     }
   }
-
-  const options = {
-
-    responsive: true,
-    maintainAspectRatio: true,
-    scales: {
-      x: {
-        type: 'time',
-        time: {
-          displayFormats: {
-            hour: 'MM/d H:00'
-          }
-          // unit: 'hour',
-        },
-      },
-    },
-    plugins: {
-      zoom: {
-        zoom: {
-          wheel: {
-            enabled: true,
-          },
-          pinch: {
-            enabled: true
-          },
-          mode: 'x',
-        },
-        pan: {
-          enabled: true,
-          mode: 'x',
-        }
-      },
-      title: {
-        font: {
-          size: 20,
-        },
-        display: true,
-        text: 'Time Series Data of ' + loggerName
-      },
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        callbacks: {
-          label: (item) => `${item.dataset.label}: ${item.formattedValue} ${getUnitofMeasurement(item.dataset.label)}`
-        }
-      },
-    },
-  };
 
   const handleCardClick = (legend) => {
     const updatedDatasets = datac.datasets.map((dataset) => {

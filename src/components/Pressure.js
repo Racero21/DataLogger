@@ -4,9 +4,12 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
 import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
-import 'chartjs-adapter-date-fns';
 import { subHours } from 'date-fns';
+import { Chart, Interaction } from 'chart.js';
 import '../Chart.css'
+import 'chartjs-adapter-date-fns';
+import zoomPlugin, { zoom } from 'chartjs-plugin-zoom';
+import { CrosshairPlugin, Interpolate } from 'chartjs-plugin-crosshair';
 import Modal from '@mui/material/Modal'
 import { Box } from '@mui/material';
 
@@ -68,6 +71,74 @@ function Pressure({ id }) {
     const datetime = logTime.slice(0, -1);
     return new Date(datetime);
   }
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: true,
+    scales: {
+      x: {
+        type: 'time',
+        time: {
+          displayFormats: {
+            hour: 'MM/d H:00'
+          }
+        }
+      },
+    },
+    plugins: {
+      crosshair: {
+        line: {
+          color: '#f66',
+          width: 1,
+          dashPattern: [15, 5]
+        },
+        zoom: {
+          enabled: false
+        },
+        // snap: {
+        //   enabled: true
+        // },
+      },
+      zoom: {
+        zoom: {
+          wheel: {
+            enabled: true,
+          },
+          pinch: {
+            enabled: true
+          },
+          mode: 'x',
+        },
+        pan: {
+          enabled: true,
+          mode: 'x'
+        },
+        limits: {
+          x: {
+            min: 'original',
+            max: 'original'
+          }
+        }
+      },
+      title: {
+        font: {
+          size: 20,
+        },
+        display: true,
+        text: loggerName + ' Pressure Meter'
+      },
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: (item) => `${item.dataset.label}: ${item.formattedValue} ${getUnitofMeasurement(item.dataset.label)}`
+        },
+        mode: 'interpolate',
+        intersect: false
+      },
+    },
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -144,53 +215,7 @@ function Pressure({ id }) {
     }
   }
 
-  const options = {
 
-    responsive: true,
-    maintainAspectRatio: true,
-    scales: {
-      x: {
-        type: 'time',
-        time: {
-          displayFormats: {
-            hour: 'MM/d H:00'
-          }
-        }
-      },
-    },
-    plugins: {
-      zoom: {
-        zoom: {
-          wheel: {
-            enabled: true,
-          },
-          pinch: {
-            enabled: true
-          },
-          mode: 'x',
-        },
-        pan: {
-          enabled: true,
-          mode: 'x'
-        }
-      },
-      title: {
-        font: {
-          size: 20,
-        },
-        display: true,
-        text: 'Time Series Data of ' + loggerName,
-      },
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        callbacks: {
-          label: (item) => `${item.dataset.label}: ${item.formattedValue} ${getUnitofMeasurement(item.dataset.label)}`
-        }
-      },
-    },
-  };
 
   const handleCardClick = (legend) => {
     const updatedDatasets = datac.datasets.map((dataset) => {
@@ -248,7 +273,7 @@ function Pressure({ id }) {
           </select>
           <Line data={datac} options={options} />
           <Typography variant='subtitle1'>
-          LATEST RECORDED LOG - <strong>{`${new Date(latest.LogTime.slice(0, -1))}`}</strong>
+            LATEST RECORDED LOG - <strong>{`${new Date(latest.LogTime.slice(0, -1))}`}</strong>
           </Typography>
           <Grid container spacing={2} onClick={handleOpen} justifyContent={'center'}>
             {/* First Card */}
