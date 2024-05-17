@@ -73,6 +73,7 @@ function Pressure({ id }) {
   }
 
   const options = {
+    cubicInterpolationMode: 'monotone',
     responsive: true,
     maintainAspectRatio: true,
     scales: {
@@ -256,13 +257,11 @@ function Pressure({ id }) {
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
-        sx={{ display: 'flex', justifyContent: 'center' }}
-      >
+        sx={{ display: 'flex', justifyContent: 'center' }}>
         <Box
           display={'flex'}
           sx={{ width: '65vw', padding: '1.5%', margin: 'auto', backgroundColor: 'white', flexDirection: 'column', borderRadius: '10px' }}
-          justifyContent={'center'}
-        >
+          justifyContent={'center'}>
           <select value={selectedTimeFrame} onChange={handleTimeFrameChange}>
             <option value="hour">Last Hour</option>
             <option value="hour12">Last 12 Hours</option>
@@ -300,9 +299,7 @@ function Pressure({ id }) {
                       animate={false}
                       textColor='black'
                       marginInPercent={0}
-                      hideText={true}
-                    />
-
+                      hideText={true}/>
                   </div>
                 </CardContent>
               </Card>
@@ -332,19 +329,15 @@ function Pressure({ id }) {
                       animate={false}
                       textColor='black'
                       marginInPercent={0}
-                      hideText={true}
-                    />
-
+                      hideText={true}/>
                   </div>
                 </CardContent>
               </Card>
-
             </Grid>
-
           </Grid>
         </Box>
-
       </Modal>
+      
       <Typography variant='h4' sx={{ textAlign: 'center', }}>
         {loggerName.split('_').pop().replaceAll('-', ' ')}
       </Typography>
@@ -374,8 +367,7 @@ function Pressure({ id }) {
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
-                  hideText={true}
-                />
+                  hideText={true}/>
               </div>
             </CardContent>
           </Card>
@@ -404,8 +396,7 @@ function Pressure({ id }) {
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
-                  hideText={true}
-                />
+                  hideText={true}/>
               </div>
             </CardContent>
           </Card>

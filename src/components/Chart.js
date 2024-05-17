@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Line } from 'react-chartjs-2';
+import { Bar, Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import chart.js to automatically register all chart types
-import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
+import { Grid, Card, CardContent, Typography, Divider, Button } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
 import { Chart, Interaction } from 'chart.js';
 import '../Chart.css';
 import 'chartjs-adapter-date-fns';
-import zoomPlugin, { zoom } from 'chartjs-plugin-zoom';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { CrosshairPlugin, Interpolate } from 'chartjs-plugin-crosshair';
 import { subHours } from 'date-fns';
 import Modal from '@mui/material/Modal';
@@ -73,13 +73,45 @@ function Charts({ id }) {
     }
     return data.filter(item => parseTime(item.LogTime) >= timeThreshold);
   }
+  const cumulativeToCategorical = (data, interval = null) => {
+    // }, [])
+    return data.map((item, index, arr) => {
+      const newItem = structuredClone(item)
+      if (index == 0) {
+        newItem.TotalFlowPositive = null
+        newItem.TotalFlowNegative = null
+      }
+      else {
+        let prev = arr[index - 1]
+        newItem.TotalFlowPositive -= prev.TotalFlowPositive
+        newItem.TotalFlowNegative -= prev.TotalFlowNegative
+      }
+      return newItem
+    })
+  }
 
   function parseTime(logTime) {
     const datetime = logTime.slice(0, -1);
     return new Date(datetime);
   }
 
-  const options = {
+  function getUnitofMeasurement(label) {
+    switch (label) {
+      case 'Average Voltage':
+        return 'V';
+      case 'Current Flow':
+        return 'L/s';
+      case 'Flow Positive':
+      case 'Flow Negative':
+        return 'm3';
+      default:
+        return '';
+    }
+  }
+
+  const lineOptions = {
+    cubicInterpolationMode: 'monotone',
+    stepped: (item) => getUnitofMeasurement(item.dataset.label) == 'm3' ? 'middle' : false,
     responsive: true,
     maintainAspectRatio: true,
     scales: {
@@ -182,10 +214,12 @@ function Charts({ id }) {
         const data = logResponse.data;
         const lastElement = data[data.length - 1];
 
-        const filtered = filterDataByTimeRange(data, selectedTimeFrame)
+        const filtered = cumulativeToCategorical(filterDataByTimeRange(data, selectedTimeFrame))
+        // const filteredTotalizer = cumulativeToCategorical(filtered)
+        // console.log(filteredTotalizer)
 
         setLatest(lastElement);
-        console.log(filtered)
+        // console.log(filtered)
         console.log(`${Object.keys(data).length} filtered down to ${Object.keys(filtered).length}`)
 
         // Process the data from the response and create the data object for the chart
@@ -238,19 +272,7 @@ function Charts({ id }) {
     fetchData();
     // console.log(datac)
   }, [id, selectedTimeFrame]);
-  function getUnitofMeasurement(label) {
-    switch (label) {
-      case 'Average Voltage':
-        return 'V';
-      case 'Current Flow':
-        return 'L/s';
-      case 'Flow Positive':
-      case 'Flow Negative':
-        return 'm3';
-      default:
-        return '';
-    }
-  }
+
 
   const handleCardClick = (legend) => {
     const updatedDatasets = datac.datasets.map((dataset) => {
@@ -291,13 +313,11 @@ function Charts({ id }) {
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
-        sx={{ display: 'flex', justifyContent: 'center' }}
-      >
+        sx={{ display: 'flex', justifyContent: 'center' }}>
         <Box
           display={'flex'}
           sx={{ width: '65vw', padding: '1.5%', margin: 'auto', backgroundColor: 'white', flexDirection: 'column', borderRadius: '10px' }}
-          justifyContent={'center'}
-        >
+          justifyContent={'center'}>
           <select value={selectedTimeFrame} onChange={handleTimeFrameChange}>
             <option value="hour">Last Hour</option>
             <option value="hour12">Last 12 Hours</option>
@@ -306,7 +326,7 @@ function Charts({ id }) {
             <option value="week">Last Week</option>
             <option value="month">Last Month</option>
           </select>
-          <Line data={datac} options={options} />
+          <Line data={datac} options={lineOptions} />
           <Typography variant='subtitle1'>
             LATEST RECORDED LOG - <strong>{`${new Date(latest.LogTime.slice(0, -1))}`}</strong>
           </Typography>
@@ -336,9 +356,7 @@ function Charts({ id }) {
                       animate={false}
                       textColor='black'
                       marginInPercent={0}
-                      hideText={true}
-                    />
-
+                      hideText={true}/>
                   </div>
                 </CardContent>
               </Card>
@@ -368,8 +386,7 @@ function Charts({ id }) {
                       animate={false}
                       textColor='black'
                       marginInPercent={0}
-                      hideText={true}
-                    />
+                      hideText={true}/>
                   </div>
                 </CardContent>
               </Card>
@@ -407,6 +424,8 @@ function Charts({ id }) {
         </Box>
 
       </Modal>
+
+
       <Typography variant='h4' sx={{ textAlign: 'center', }}>
         {loggerName.split('_').pop().replace('-', ' ')}
       </Typography>
@@ -437,8 +456,7 @@ function Charts({ id }) {
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
-                  hideText={true}
-                />
+                  hideText={true}/>
               </div>
             </CardContent>
           </Card>
@@ -467,8 +485,7 @@ function Charts({ id }) {
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
-                  hideText={true}
-                />
+                  hideText={true}/>
               </div>
             </CardContent>
           </Card>
