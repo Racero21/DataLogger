@@ -383,7 +383,7 @@ function Charts({ id }) {
                     Totalizer Positive
                   </Typography>
                   <Typography variant='h6' >
-                    {latest.TotalFlowPositive ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
+                    {totalizer?.DailyFlowPositive ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
                   </Typography>
                 </CardContent>
               </Card>
@@ -397,7 +397,7 @@ function Charts({ id }) {
                     Totalizer Negative
                   </Typography>
                   <Typography variant='h6' >
-                    {latest.TotalFlowNegative ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
+                    {totalizer?.DailyFlowNegative ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
                   </Typography>
                 </CardContent>
               </Card>
@@ -486,7 +486,8 @@ function Charts({ id }) {
                         Totalizer Positive
                       </Typography>
                       <Typography variant='h6'>
-                        {latest.TotalFlowPositive} L
+                        {/* {latest.TotalFlowPositive} L */}
+                        {totalizer?.DailyFlowPositive ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
                       </Typography>
                     </Grid>
                   </Grid>
@@ -505,7 +506,8 @@ function Charts({ id }) {
                   Totalizer Negative
                 </Typography>
                 <Typography variant='h6'>
-                  {latest.TotalFlowNegative} L
+                  {/* {latest.TotalFlowNegative} L */}
+                  {totalizer?.DailyFlowNegative ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
                 </Typography>
               </Grid>
             </CardContent>

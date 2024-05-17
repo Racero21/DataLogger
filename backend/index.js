@@ -27,11 +27,14 @@ const pool = mysql.createPool({
 
 // DATA ENDPOINTS - GET
 
-app.get('/api/logger', (req, res) => {
-    const query = 'SELECT * FROM datalogger ORDER BY Name ASC';
+app.get('/api/logger/:id?', (req, res) => {
+    let query = 'SELECT * FROM datalogger ORDER BY Name ASC';
+    const loggerId = req.params.id;
+    if(loggerId) query = `SELECT * FROM datalogger WHERE LoggerId = ${loggerId}`; 
     pool.query(query, (error, results) => {
+        console.log(query)
         if(error) {
-            return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
+            return res.status(500).json({error: `Failed to fetch data: ${error.message}`});
         }
         res.json(results)
     });
@@ -70,7 +73,7 @@ app.get('/api/pressure_log/:id?', (req, res) => {
 app.get('/api/latest_log/flow/:id?', (req, res) => {
     let query = 'SELECT * FROM latest_flow_log '
     const LoggerId = req.params.id;
-    if(LoggerId) query += 'WHERE LoggerId = ' + LoggerId
+    if(LoggerId) query += `WHERE LoggerId = ${LoggerId}`
     // console.log(req.params.id)
     pool.query(query, (error, results) => {
         if(error){
@@ -83,7 +86,7 @@ app.get('/api/latest_log/flow/:id?', (req, res) => {
 app.get('/api/latest_log/pressure/:id?', (req, res) => {
     let query = 'SELECT * FROM latest_pressure_log '
     const LoggerId = req.params.id;
-    if(LoggerId) query += 'WHERE LoggerId = ' + LoggerId
+    if(LoggerId) query += `WHERE LoggerId =${LoggerId}`
     // console.log(query)
     pool.query(query, (error, results) => {
         if(error){
@@ -96,7 +99,7 @@ app.get('/api/latest_log/pressure/:id?', (req, res) => {
 app.get('/api/totalizer/:id?', (req, res) =>{
     const LoggerId = req.params.id;
     if(!LoggerId) return res.status(500).json({error: `No Logger ID given`});
-    let query = 'SELECT * FROM totalizer WHERE LoggerId = ' + LoggerId
+    let query = `SELECT * FROM totalizer WHERE LoggerId =${mysql.escape(LoggerId)} ORDER BY LastUpdated DESC LIMIT 1`
     pool.query(query, (error, results) => {
         if(error){
             return res.status(500).json({error: `Failed to fetch data ${error.message}`})
@@ -198,7 +201,7 @@ app.get('/api/user', (req, res) => {
     const query = 'SELECT username FROM user ORDER BY username ASC';
     pool.query(query, (error, results) => {
         if(error) {
-            return res.status(500).json({error: 'Failed to fetch data: {error.message}'});
+            return res.status(500).json({error: `Failed to fetch data: ${error.message}`});
         }
         res.json(results)
     });
@@ -210,7 +213,7 @@ app.delete('/api/remove/:username?', (req, res) => {
     const query = 'DELETE FROM user WHERE username = ?'
     pool.query(query, [username], (error, results) => {
         if (error) {
-            return res.status(500).json({error: 'Failed to delete data: {error.message}'})
+            return res.status(500).json({error: `Failed to delete data: ${error.message}`})
         }
         res.json({
             data: {
