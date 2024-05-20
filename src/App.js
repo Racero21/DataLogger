@@ -13,6 +13,7 @@ import AuthProvider from './auth/AuthProvider';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import PrivateRoute from './route/PrivateRoute';
 import AddUser from './components/AddUser';
+import DashboardGraphs from './components/DashboardGraphs';
 
 function App() {
   const [data, setData] = useState([]);
@@ -45,15 +46,15 @@ function App() {
     switch (selectedComponent) {
       case 'statistics':
         return <>
-          {filteredData.map((item) => (
+          {filteredData.map((item, index) => (
             <Grid item xs={12} sm={6} md={4}
               p={2} sx={{boxShadow: 4, borderRadius: '10px' }}
-              minWidth={400}>
+              minWidth={400} key={index}>
               {String(item.Name).toLowerCase().includes('pressure') ? <Pressure id={item.LoggerId} name={item.Name} /> : <Charts id={item.LoggerId} name={item.Name} />}
               {/* <Chart id={item.LoggerId} /> */}
             </Grid>))}
           <Divider width='100%'></Divider>
-          <h1>other graphs</h1>
+          <DashboardGraphs/>
         </>
       case 'map':
         return (

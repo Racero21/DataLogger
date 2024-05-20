@@ -28,7 +28,7 @@ function batteryPercentQ(curVoltage) {
 
 function batteryPercentL(curVoltage) {
   // Logarithmic Regression Model for 3.2 V LiFePo4 battery
-  const a = 8, b = -8.7
+  const a = 8, b = -8.75
   return Math.ceil(((a * Math.log(curVoltage)) + b) * 100)
 }
 
@@ -116,16 +116,19 @@ function MyMap() {
             </Marker>
             <Marker position={[item.Latitude, item.Longitude]} icon={new divIcon({ iconSize: [0, 0] })}>
               <Tooltip sticky permanent direction='top' offset={[0, -10]}>
-                <div key={index} style={{ 'textAlign': 'center' }}>
-                  <strong>
+                <div key={index} style={{ 'textAlign': 'center'}}>
+                  <strong style={{'fontSize':'1.125em'}}>
                     {logData?.get(item.LoggerId)?.CurrentPressure ? 
                     <> {(logData.get(item.LoggerId).CurrentPressure < item.PressureLimit.split(',')[0]) || (logData.get(item.LoggerId).CurrentPressure > item.PressureLimit.split(',')[1]) ?
                     <span className='blinking'>🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></span> :
                     <> 🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></>}</> : ''}
                     {logData?.get(item.LoggerId)?.CurrentFlow ? <> 💧 {logData.get(item.LoggerId).CurrentFlow} <em>lps</em><br></br> </> : ''}
-                    {logData?.get(item.LoggerId)?.AverageVoltage ? <> ⚡ {logData.get(item.LoggerId).AverageVoltage} <em>V</em> </> : ''}
+                    {/* {logData?.get(item.LoggerId)?.AverageVoltage ? <> ⚡ {logData.get(item.LoggerId).AverageVoltage} <em>V</em> </> : ''} */}
                     {/* {logData?.get(item.LoggerId)?.AverageVoltage? <> 🔋 {lerp(2.8,3.4,logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </>:''} */}
-                    {logData?.get(item.LoggerId)?.AverageVoltage ? <> 🔋 {batteryPercentL(logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </> : ''}
+                    {logData?.get(item.LoggerId)?.AverageVoltage ? 
+                    <> {(logData.get(item.LoggerId)?.AverageVoltage < 3.04) || (logData.get(item.LoggerId)?.AverageVoltage > 3.3) ? 
+                    <span className='blinking'>🔋 {batteryPercentL(logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </span> :
+                    <> 🔋 {batteryPercentL(logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br></>}</> : '' }
                   </strong>
                 </div>
               </Tooltip>

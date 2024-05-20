@@ -330,6 +330,7 @@ function Charts({ id }) {
             // Add more datasets if needed
           ]
         };
+        console.log(transformedTotalizerData)
         setBarData(transformedTotalizerData);
         setLineData(transformedData);
         setLoading(false);
@@ -387,11 +388,10 @@ function Charts({ id }) {
           display={'flex'}
           sx={{ width: '75vw', padding: '1.5%', margin: 'auto', backgroundColor: 'white', borderRadius: '10px' }}
           justifyContent={'center'}>
-          <Grid item xs={8}>
+          <Grid item xs={12} sm={12} md ={8}>
             <Box
               display={'flex'}
-              sx={{ margin: 'auto', backgroundColor: 'white', flexDirection: 'column', borderRadius: '10px' }}
-              justifyContent={'center'}>
+              sx={{ margin: 'auto', backgroundColor: 'white', flexDirection: 'column', borderRadius: '10px' }}>
               <select value={selectedTimeFrame} onChange={handleTimeFrameChange}>
                 <option value="hour">Last Hour</option>
                 <option value="hour12">Last 12 Hours</option>
@@ -445,7 +445,7 @@ function Charts({ id }) {
                           Voltage
                         </Typography>
                         <Typography variant='h4'>
-                          {latest.AverageVoltage ?? <strong style={{ 'color': 'red' }}>'N/A'</strong>} Volts
+                          {latest.AverageVoltage ?? <strong style={{ 'color': 'red' }}>'N/A'</strong>} V
                         </Typography>
                       </Grid>
                       <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
@@ -497,7 +497,7 @@ function Charts({ id }) {
               </Grid>
             </Box>
           </Grid>
-          <Grid item xs={4} paddingTop={1} paddingLeft={2}>
+          <Grid item xs={12} sm={12} md={4} paddingTop={1} paddingLeft={2}>
           <Bar data={barData} options={barOptions} />
 
           </Grid>
@@ -549,7 +549,7 @@ function Charts({ id }) {
                   Voltage
                 </Typography>
                 <Typography variant='h6' fontWeight='bolder'>
-                  {latest.AverageVoltage ?? <strong style={{ 'color': 'red' }}>N/A</strong>} Volts
+                  {latest.AverageVoltage ?? <strong style={{ 'color': 'red' }}>N/A</strong>} V
                 </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}

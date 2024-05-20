@@ -314,7 +314,7 @@ function Pressure({ id }) {
                       Voltage
                     </Typography>
                     <Typography variant="h4">
-                      {latest.AverageVoltage ?? <strong style={{ 'color': 'red' }}>'N/A'</strong>} Volts
+                      {latest.AverageVoltage ?? <strong style={{ 'color': 'red' }}>'N/A'</strong>} V
                     </Typography>
                   </Grid>
                   <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
@@ -381,7 +381,7 @@ function Pressure({ id }) {
                   Voltage
                 </Typography>
                 <Typography variant='h6' fontWeight={'bolder'}>
-                  {latest.AverageVoltage} Volts
+                  {latest.AverageVoltage} V
                 </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
