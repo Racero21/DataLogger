@@ -99,7 +99,7 @@ app.get('/api/latest_log/pressure/:id?', (req, res) => {
 app.get('/api/totalizer/:id?', (req, res) =>{
     const LoggerId = req.params.id;
     if(!LoggerId) return res.status(500).json({error: `No Logger ID given`});
-    let query = `SELECT * FROM totalizer WHERE LoggerId =${mysql.escape(LoggerId)} ORDER BY LastUpdated DESC LIMIT 1`
+    let query = `SELECT * FROM totalizer WHERE LoggerId =${mysql.escape(LoggerId)} ORDER BY LastUpdated DESC`
     pool.query(query, (error, results) => {
         if(error){
             return res.status(500).json({error: `Failed to fetch data ${error.message}`})

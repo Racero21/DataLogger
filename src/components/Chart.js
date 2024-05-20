@@ -19,7 +19,8 @@ function Charts({ id }) {
   Chart.register(zoomPlugin);
   Chart.register(CrosshairPlugin);
   Interaction.modes.interpolate = Interpolate
-  const [datac, setCData] = useState(null);
+  const [lineData, setLineData] = useState(null);
+  const [barData, setBarData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState([]);
   const [loggerData, setLoggerData] = useState(null)
@@ -180,47 +181,95 @@ function Charts({ id }) {
     },
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const totalizerResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/totalizer/` + id)
-      setTotalizer(totalizerResponse.data[0])
-      console.log(totalizerResponse.data[0])
-
+  const barOptions = {
+    aspectRatio:0.75,
+    maintainAspectRatio: true,
+    responsive: true,
+    indexAxis: 'y',
+    scales: {
+      y: {
+        type: 'time',
+        time: {
+          // displayFormats: {
+          //   Day: 'MM/d H:00'
+          // }
+          unit: 'day',
+        },
+      },
+    },
+    plugins: {
+      crosshair: {
+        line: {
+          color: '#f66',
+          width: 1,
+          dashPattern: [0, 5]
+        },
+        zoom: {
+          enabled: false
+        },
+      },
+      zoom: {
+        zoom: {
+          wheel: {
+            enabled: false,
+          },
+          pinch: {
+            enabled: false
+          },
+        },
+        pan: {
+          enabled: false,
+          mode: 'x',
+        },
+        limits: {
+          x: {
+            min: 'original',
+            max: 'original'
+          }
+        }
+      },
+      title: {
+        font: {
+          size: 20,
+        },
+        display: true,
+        text: loggerName + ' Totalizer'
+      },
+      legend: {
+        // display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: (item) => `${item.dataset.label}: ${item.formattedValue} m3`
+        },
+        mode:'y',
+        intersect: false
+      }
     }
-    fetchData()
-    // console.log(totalizer)
-
-  }, [])
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const logResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/flow_log/` + id);
-        const loggerResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger`)
+        const loggerResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/logger/` + id)
+        const totalizerResponse = await axios.get(`http://${process.env.REACT_APP_API_HOST}:${process.env.REACT_APP_API_PORT}/api/totalizer/` + id)
 
-        const loggers = loggerResponse.data;
-        loggers.map(item => {
-          console.log("test")
-          if (item.LoggerId === id) {
-            setLoggerData(item);
-            setLoggerName(item.Name.split('_').pop().replaceAll('-', ' '))
-            // console.log(loggerData)
-            return 0;
-          }
-          return -1;
-        })
-        console.log(loggers)
+        setTotalizer(totalizerResponse.data)
 
-        const data = logResponse.data;
-        const lastElement = data[data.length - 1];
+        setLoggerData(loggerResponse.data[0])
+        setLoggerName(loggerResponse.data[0].Name.split('_').pop().replaceAll('-', ' '))
 
-        const filtered = cumulativeToCategorical(filterDataByTimeRange(data, selectedTimeFrame))
-        // const filteredTotalizer = cumulativeToCategorical(filtered)
-        // console.log(filteredTotalizer)
+
+        const flowData = logResponse.data;
+        const totalizerData = totalizerResponse.data;
+        const lastElement = flowData[flowData.length - 1];
+
+        const filtered = cumulativeToCategorical(filterDataByTimeRange(flowData, selectedTimeFrame))
 
         setLatest(lastElement);
         // console.log(filtered)
-        console.log(`${Object.keys(data).length} filtered down to ${Object.keys(filtered).length}`)
+        console.log(`${Object.keys(flowData).length} filtered down to ${Object.keys(filtered).length}`)
 
         // Process the data from the response and create the data object for the chart
         const transformedData = {
@@ -261,7 +310,28 @@ function Charts({ id }) {
           ]
         };
 
-        setCData(transformedData);
+        const transformedTotalizerData = {
+          labels: totalizerData.map(item => parseTime(item.Date)),
+          datasets: [
+            {
+              label: 'Daily Flow Positive',
+              data: totalizerData.map(item => item.DailyFlowPositive),
+              backgroundColor: borderColor.positive,
+              fill: true,
+              hidden: false,
+            },
+            {
+              label: 'Daily Flow Negative',
+              data: totalizerData.map(item => item.DailyFlowNegative),
+              backgroundColor: borderColor.negative,
+              fill: true,
+              hidden: false,
+            },
+            // Add more datasets if needed
+          ]
+        };
+        setBarData(transformedTotalizerData);
+        setLineData(transformedData);
         setLoading(false);
 
       } catch (error) {
@@ -270,12 +340,11 @@ function Charts({ id }) {
     };
 
     fetchData();
-    // console.log(datac)
   }, [id, selectedTimeFrame]);
 
 
   const handleCardClick = (legend) => {
-    const updatedDatasets = datac.datasets.map((dataset) => {
+    const updatedDatasets = lineData.datasets.map((dataset) => {
       if (dataset.label !== legend && dataset.hidden === false) {
         // Hide other datasets if they are not the clicked legend
         return {
@@ -294,8 +363,8 @@ function Charts({ id }) {
     });
 
     // Update the chart data with the updated datasets
-    setCData({
-      ...datac,
+    setLineData({
+      ...lineData,
       datasets: updatedDatasets,
     });
   };
@@ -313,116 +382,126 @@ function Charts({ id }) {
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
-        sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Box
+        sx={{ display: 'flex', justifyContent: 'center', align: 'middle' }}>
+        <Grid container
           display={'flex'}
-          sx={{ width: '65vw', padding: '1.5%', margin: 'auto', backgroundColor: 'white', flexDirection: 'column', borderRadius: '10px' }}
+          sx={{ width: '75vw', padding: '1.5%', margin: 'auto', backgroundColor: 'white', borderRadius: '10px' }}
           justifyContent={'center'}>
-          <select value={selectedTimeFrame} onChange={handleTimeFrameChange}>
-            <option value="hour">Last Hour</option>
-            <option value="hour12">Last 12 Hours</option>
-            <option value="day">Last 24 Hours</option>
-            <option value="day2">Last 48 Hours</option>
-            <option value="week">Last Week</option>
-            <option value="month">Last Month</option>
-          </select>
-          <Line data={datac} options={lineOptions} />
-          <Typography variant='subtitle1'>
-            LATEST RECORDED LOG - <strong>{`${new Date(latest.LogTime.slice(0, -1))}`}</strong>
-          </Typography>
-          <Grid container spacing={2} onClick={handleOpen}>
-            {/* First Card */}
-            <Grid item xs={4}>
-              <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `5px solid ${borderColor.flow}` }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
-                  <Grid container direction={'column'}>
-                    <Typography variant="button" fontSize={16}>
-                      Flow
-                    </Typography>
-                    <Typography variant="h4">
-                      {latest.CurrentFlow ?? <strong style={{ 'color': 'red' }}>N/A</strong>} L/s
-                    </Typography>
-                  </Grid>
-                  <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
-                    <GaugeChart id="gauge-chart"
-                      percent={latest.CurrentFlow / 48.61}
-                      cornerRadius={0.2}
-                      arcWidth={0.4}
-                      // nrOfLevels={420}
-                      // formatTextValue={(value) => value + ' L/s'}
-                      arcsLength={[0.075, 0.15, 0.75, 0.1]}
-                      // 15% 100
-                      colors={['#EA4228', '#F5CD19', 'green', '#F5CD19']}
-                      animate={false}
-                      textColor='black'
-                      marginInPercent={0}
-                      hideText={true}/>
-                  </div>
-                </CardContent>
-              </Card>
-            </Grid>
+          <Grid item xs={8}>
+            <Box
+              display={'flex'}
+              sx={{ margin: 'auto', backgroundColor: 'white', flexDirection: 'column', borderRadius: '10px' }}
+              justifyContent={'center'}>
+              <select value={selectedTimeFrame} onChange={handleTimeFrameChange}>
+                <option value="hour">Last Hour</option>
+                <option value="hour12">Last 12 Hours</option>
+                <option value="day">Last 24 Hours</option>
+                <option value="day2">Last 48 Hours</option>
+                <option value="week">Last Week</option>
+                <option value="month">Last Month</option>
+              </select>
+              <Line data={lineData} options={lineOptions} />
+              <Typography variant='subtitle1'>
+                LATEST RECORDED LOG - <strong>{`${new Date(latest.LogTime.slice(0, -1))}`}</strong>
+              </Typography>
+              <Grid container spacing={2} onClick={handleOpen}>
+                {/* First Card */}
+                <Grid item xs={4}>
+                  <Card className='card' onClick={() => handleCardClick('Current Flow')} sx={{ border: `5px solid ${borderColor.flow}` }}>
+                    <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
+                      <Grid container direction={'column'}>
+                        <Typography variant="button" fontSize={16}>
+                          Flow
+                        </Typography>
+                        <Typography variant="h4">
+                          {latest.CurrentFlow ?? <strong style={{ 'color': 'red' }}>N/A</strong>} L/s
+                        </Typography>
+                      </Grid>
+                      <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
+                        <GaugeChart id="gauge-chart"
+                          percent={latest.CurrentFlow / 48.61}
+                          cornerRadius={0.2}
+                          arcWidth={0.4}
+                          // nrOfLevels={420}
+                          // formatTextValue={(value) => value + ' L/s'}
+                          arcsLength={[0.075, 0.15, 0.75, 0.1]}
+                          // 15% 100
+                          colors={['#EA4228', '#F5CD19', 'green', '#F5CD19']}
+                          animate={false}
+                          textColor='black'
+                          marginInPercent={0}
+                          hideText={true} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Grid>
 
-            {/* Second Card */}
-            <Grid item xs={4}>
-              <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
-                  <Grid item container direction={'column'}>
-                    <Typography variant="button" fontSize={16}>
-                      Voltage
-                    </Typography>
-                    <Typography variant='h4'>
-                      {latest.AverageVoltage ?? <strong style={{ 'color': 'red' }}>'N/A'</strong>} Volts
-                    </Typography>
-                  </Grid>
-                  <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
-                    <GaugeChart id="gauge-chart"
-                      percent={latest.AverageVoltage / 4.3}
-                      cornerRadius={0.2}
-                      arcWidth={0.4}
-                      // nrOfLevels={420}
-                      formatTextValue={(value) => value / 10 + 'V'}
-                      arcsLength={[0.15, 0.15, 0.6, 0.1, 0.1]}
-                      colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
-                      animate={false}
-                      textColor='black'
-                      marginInPercent={0}
-                      hideText={true}/>
-                  </div>
-                </CardContent>
-              </Card>
-            </Grid>
+                {/* Second Card */}
+                <Grid item xs={4}>
+                  <Card className='card' onClick={() => handleCardClick('Average Voltage')} sx={{ border: `5px solid ${borderColor.voltage}` }}>
+                    <CardContent sx={{ display: 'flex', flexDirection: 'row' }}>
+                      <Grid item container direction={'column'}>
+                        <Typography variant="button" fontSize={16}>
+                          Voltage
+                        </Typography>
+                        <Typography variant='h4'>
+                          {latest.AverageVoltage ?? <strong style={{ 'color': 'red' }}>'N/A'</strong>} Volts
+                        </Typography>
+                      </Grid>
+                      <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
+                        <GaugeChart id="gauge-chart"
+                          percent={latest.AverageVoltage / 4.3}
+                          cornerRadius={0.2}
+                          arcWidth={0.4}
+                          // nrOfLevels={420}
+                          formatTextValue={(value) => value / 10 + 'V'}
+                          arcsLength={[0.15, 0.15, 0.6, 0.1, 0.1]}
+                          colors={['#EA4228', '#F5CD19', 'green', '#F5CD19', '#EA4228']}
+                          animate={false}
+                          textColor='black'
+                          marginInPercent={0}
+                          hideText={true} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Grid>
 
-            {/* Totalizer + Card */}
-            <Grid item xs={2} sx={{ display: 'flex' }}>
-              <Card className='card' onClick={() => handleCardClick('Flow Positive')} sx={{ flex: 1, border: `5px solid ${borderColor.positive}` }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant="button" fontSize={16}>
-                    Totalizer Positive
-                  </Typography>
-                  <Typography variant='h6' >
-                    {totalizer?.DailyFlowPositive ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+                {/* Totalizer + Card */}
+                <Grid item xs={2} sx={{ display: 'flex' }}>
+                  <Card className='card' onClick={() => handleCardClick('Flow Positive')} sx={{ flex: 1, border: `5px solid ${borderColor.positive}` }}>
+                    <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography variant="button" fontSize={16}>
+                        Totalizer Positive
+                      </Typography>
+                      <Typography variant='h6' >
+                        {totalizer[0]?.DailyFlowPositive ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
 
-            {/* Totalizer - Card */}
-            <Grid item xs={2} sx={{ display: 'flex' }}>
-              <Card className='card' onClick={() => handleCardClick('Flow Negative')} sx={{ flex: 1, border: `5px solid ${borderColor.negative}` }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant="button" fontSize={16}>
-                    Totalizer Negative
-                  </Typography>
-                  <Typography variant='h6' >
-                    {totalizer?.DailyFlowNegative ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+                {/* Totalizer - Card */}
+                <Grid item xs={2} sx={{ display: 'flex' }}>
+                  <Card className='card' onClick={() => handleCardClick('Flow Negative')} sx={{ flex: 1, border: `5px solid ${borderColor.negative}` }}>
+                    <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography variant="button" fontSize={16}>
+                        Totalizer Negative
+                      </Typography>
+                      <Typography variant='h6' >
+                        {totalizer[0]?.DailyFlowNegative ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+              </Grid>
+            </Box>
+          </Grid>
+          <Grid item xs={4} paddingTop={1} paddingLeft={2}>
+          <Bar data={barData} options={barOptions} />
 
           </Grid>
-        </Box>
-
+        </Grid>
       </Modal>
 
 
@@ -456,7 +535,7 @@ function Charts({ id }) {
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
-                  hideText={true}/>
+                  hideText={true} />
               </div>
             </CardContent>
           </Card>
@@ -485,7 +564,7 @@ function Charts({ id }) {
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
-                  hideText={true}/>
+                  hideText={true} />
               </div>
             </CardContent>
           </Card>
@@ -504,7 +583,7 @@ function Charts({ id }) {
                       </Typography>
                       <Typography variant='h6'>
                         {/* {latest.TotalFlowPositive} L */}
-                        {totalizer?.DailyFlowPositive ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
+                        {totalizer[0]?.DailyFlowPositive ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
                       </Typography>
                     </Grid>
                   </Grid>
@@ -524,7 +603,7 @@ function Charts({ id }) {
                 </Typography>
                 <Typography variant='h6'>
                   {/* {latest.TotalFlowNegative} L */}
-                  {totalizer?.DailyFlowNegative ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
+                  {totalizer[0]?.DailyFlowNegative ?? <strong style={{ 'color': 'red' }}>N/A</strong>} m<sup>3</sup>
                 </Typography>
               </Grid>
             </CardContent>
