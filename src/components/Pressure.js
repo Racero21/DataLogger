@@ -5,15 +5,13 @@ import 'chart.js/auto'; // Import chart.js to automatically register all chart t
 import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
 import GaugeChart from 'react-gauge-chart';
 import { subHours } from 'date-fns';
-import { Chart, Interaction } from 'chart.js';
 import '../Chart.css'
 import 'chartjs-adapter-date-fns';
-import zoomPlugin, { zoom } from 'chartjs-plugin-zoom';
 import { CrosshairPlugin, Interpolate } from 'chartjs-plugin-crosshair';
 import Modal from '@mui/material/Modal'
 import { Box } from '@mui/material';
 
-function Pressure({ id }) {
+function Pressure({ id, showGauge=true }) {
   const [datac, setCData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState([]);
@@ -342,7 +340,7 @@ function Pressure({ id }) {
         {loggerName.split('_').pop().replaceAll('-', ' ')}
       </Typography>
       <Divider></Divider>
-      <Grid container spacing={2} onClick={handleOpen} sx={{ paddingTop: '10px' }}>
+      <Grid container spacing={2} onClick={handleOpen} sx={{ paddingTop: '10px',}}>
         {/* First Card */}
         <Grid item xs={6} >
           <Card className='card' onClick={() => handleCardClick('Current Pressure')} sx={{ border: `5px solid ${borderColor.pressure}` }}>
@@ -356,6 +354,7 @@ function Pressure({ id }) {
                 </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
+                {showGauge?
                 <GaugeChart id="gauge-chart"
                   percent={latest.CurrentPressure / 30}
                   cornerRadius={0.2}
@@ -367,7 +366,7 @@ function Pressure({ id }) {
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
-                  hideText={true}/>
+                  hideText={true}/>:''}
               </div>
             </CardContent>
           </Card>
@@ -385,6 +384,7 @@ function Pressure({ id }) {
                 </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
+                {showGauge?
                 <GaugeChart id="gauge-chart"
                   percent={latest.AverageVoltage / 4.5}
                   cornerRadius={0.2}
@@ -396,7 +396,7 @@ function Pressure({ id }) {
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
-                  hideText={true}/>
+                  hideText={true}/>:''}
               </div>
             </CardContent>
           </Card>

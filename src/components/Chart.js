@@ -15,7 +15,7 @@ import { Box } from '@mui/material';
 
 
 
-function Charts({ id }) {
+function Charts({ id, showGauge=true }) {
   Chart.register(zoomPlugin);
   Chart.register(CrosshairPlugin);
   Interaction.modes.interpolate = Interpolate
@@ -504,7 +504,6 @@ function Charts({ id }) {
         </Grid>
       </Modal>
 
-
       <Typography variant='h4' sx={{ textAlign: 'center', }}>
         {loggerName.split('_').pop().replace('-', ' ')}
       </Typography>
@@ -523,6 +522,7 @@ function Charts({ id }) {
                 </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
+                {showGauge? 
                 <GaugeChart id="gauge-chart"
                   percent={latest.CurrentFlow / 41}
                   cornerRadius={0.2}
@@ -535,7 +535,7 @@ function Charts({ id }) {
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
-                  hideText={true} />
+                  hideText={true} />:''}
               </div>
             </CardContent>
           </Card>
@@ -553,6 +553,7 @@ function Charts({ id }) {
                 </Typography>
               </Grid>
               <div style={{ width: '50%', height: '50%' }}> {/* Adjust percentage values as needed */}
+                {showGauge?
                 <GaugeChart id="gauge-chart"
                   percent={latest.AverageVoltage / 4.5}
                   cornerRadius={0.2}
@@ -564,7 +565,7 @@ function Charts({ id }) {
                   animate={false}
                   textColor='black'
                   marginInPercent={0}
-                  hideText={true} />
+                  hideText={true} />:''}
               </div>
             </CardContent>
           </Card>

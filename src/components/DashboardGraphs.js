@@ -11,14 +11,6 @@ function DashboardGraphs() {
     const [barData, setBarData] = useState({});
     const [loading, setLoading] = useState(true)
 
-    // const graphColor = {
-    //     t1: '#ffac33', // Electric Orange
-    //     t2: '#42A5F5',    // Water Blue
-    //     t3: '#f4ff00',
-    //     t4: '#4CAF50', // Fresh Green
-    //     t5: '#af579f', // Rusty Red
-    // }
-
     const graphColor = [
         '#ffac33',   
         '#42A5F5',

@@ -1,12 +1,16 @@
-import React, { Component, useEffect, useState, useRef } from 'react';
-import { Icon, divIcon, } from 'leaflet';
-import { MapContainer, TileLayer, Marker, Tooltip, } from 'react-leaflet';
+import React, { useEffect, useState, useRef } from 'react';
+import { Icon, divIcon } from 'leaflet';
+import { MapContainer, TileLayer, Marker, Tooltip, Popup } from 'react-leaflet';
+import ResetViewControl from '@20tab/react-leaflet-resetview'
 import axios from 'axios';
 import '../Map.css'
-import { Button } from '@mui/material';
+import Charts from './Chart';
+import "chart.js/auto";
+import Pressure from './Pressure';
 import Box from '@mui/material/Box';
 import Fab from '@mui/material/Fab';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
+import { Typography } from '@mui/material';
 
 const markerIcon = new Icon({
   iconUrl: require("../img/meter.png"),
@@ -93,7 +97,7 @@ function MyMap() {
   return (
     <>
       <MapContainer center={[13.58438280013, 123.2738403740]} zoom={13.5} maxZoom={17} minZoom={13} style={{ height: '80vh', }} maxBounds={[[13.649076, 123.167956], [13.494945, 123.387211]]}>
-
+        <ResetViewControl title="Reset View" icon={"🔎"} />
         <Box onClick={onClick} sx={{ '& > :not(style)': { my: 5, mx: 1, display: 'flex' } }}>
           <Fab color="primary" aria-label="add" sx={{ boxSizing: 'border-box', position: "absolute", bottom: (theme) => '0%', right: (theme) => theme.spacing(2) }}>
             <DarkModeOutlinedIcon />
@@ -107,29 +111,36 @@ function MyMap() {
         />
         {loggerData.map((item, index) => (
           <div key={index}>
-            <Marker position={[item.Latitude, item.Longitude]} icon={markerIcon}>
+            <Marker position={[item.Latitude, item.Longitude]} icon={markerIcon} riseOnHover={true}>
+              {/* {String(item.Name).toLowerCase().includes('pressure') ? <Pressure id={item.LoggerId} name={item.Name} /> : <Charts id={item.LoggerId} name={item.Name} />} */}
+
               <Tooltip permanent direction='bottom' offset={[0, 10]} >
                 <div className={darkMode ? "pslabel-dark" : "pslabel-light"}>
-                  {item.Name.split('_').pop().replaceAll('-', ' ')} 
+                  {item.Name.split('_').pop().replaceAll('-', ' ')}
                 </div>
               </Tooltip>
+              <Popup minWidth={400}>
+                {String(item.Name).toLowerCase().includes('pressure') ? <Pressure id={item.LoggerId} name={item.Name} showGauge={false} /> : <Charts id={item.LoggerId} name={item.Name} showGauge={false} />}
+              </Popup>
             </Marker>
-            <Marker position={[item.Latitude, item.Longitude]} icon={new divIcon({ iconSize: [0, 0] })}>
+            <Marker position={[item.Latitude, item.Longitude]} icon={new divIcon({ iconSize: [0, 0] })} zIndexOffset={-1}>
               <Tooltip sticky permanent direction='top' offset={[0, -10]}>
-                <div key={index} style={{ 'textAlign': 'center'}}>
-                  <strong style={{'fontSize':'1.125em'}}>
-                    {logData?.get(item.LoggerId)?.CurrentPressure ? 
-                    <> {(logData.get(item.LoggerId).CurrentPressure < item.PressureLimit.split(',')[0]) || (logData.get(item.LoggerId).CurrentPressure > item.PressureLimit.split(',')[1]) ?
-                    <span className='blinking'>🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></span> :
-                    <> 🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></>}</> : ''}
+                <div key={index} style={{ 'textAlign': 'center' }}>
+                  {/* <strong style={{ 'fontSize': '1.125em' }}> */}
+                  <Typography variant='h4' fontSize={14} fontWeight={'bolder'} p={.5}>
+                    {logData?.get(item.LoggerId)?.CurrentPressure ?
+                      <> {(logData.get(item.LoggerId).CurrentPressure < item.PressureLimit.split(',')[0]) || (logData.get(item.LoggerId).CurrentPressure > item.PressureLimit.split(',')[1]) ?
+                        <span className='blinking'>🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></span> :
+                        <> 🕒 {logData?.get(item.LoggerId)?.CurrentPressure} <em>psi</em><br></br></>}</> : ''}
                     {logData?.get(item.LoggerId)?.CurrentFlow ? <> 💧 {logData.get(item.LoggerId).CurrentFlow} <em>lps</em><br></br> </> : ''}
                     {/* {logData?.get(item.LoggerId)?.AverageVoltage ? <> ⚡ {logData.get(item.LoggerId).AverageVoltage} <em>V</em> </> : ''} */}
                     {/* {logData?.get(item.LoggerId)?.AverageVoltage? <> 🔋 {lerp(2.8,3.4,logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </>:''} */}
-                    {logData?.get(item.LoggerId)?.AverageVoltage ? 
-                    <> {(logData.get(item.LoggerId)?.AverageVoltage < 3.04) || (logData.get(item.LoggerId)?.AverageVoltage > 3.3) ? 
-                    <span className='blinking'>🔋 {batteryPercentL(logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </span> :
-                    <> 🔋 {batteryPercentL(logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br></>}</> : '' }
-                  </strong>
+                    {logData?.get(item.LoggerId)?.AverageVoltage ?
+                      <> {(logData.get(item.LoggerId)?.AverageVoltage < 3.04) || (logData.get(item.LoggerId)?.AverageVoltage > 3.3) ?
+                        <span className='blinking'>🔋 {batteryPercentL(logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br> </span> :
+                        <> 🔋 {batteryPercentL(logData?.get(item.LoggerId)?.AverageVoltage)} <em>%</em><br></br></>}</> : ''}
+                  </Typography>
+                  {/* </strong> */}
                 </div>
               </Tooltip>
             </Marker>
